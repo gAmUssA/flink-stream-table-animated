@@ -30,6 +30,24 @@ module.exports = defineConfig({
       name: 'webkit',
       use: { ...devices['Desktop Safari'] },
     },
+    // Mobile devices
+    {
+      name: 'mobile-chrome',
+      use: { ...devices['Pixel 5'] },
+    },
+    {
+      name: 'mobile-safari',
+      use: { ...devices['iPhone 12'] },
+    },
+    // Tablet devices
+    {
+      name: 'tablet-chrome',
+      use: { ...devices['Galaxy Tab S4'] },
+    },
+    {
+      name: 'tablet-safari',
+      use: { ...devices['iPad Pro'] },
+    },
   ],
 
   webServer: {

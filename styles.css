@@ -222,7 +222,7 @@
             font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
             background: var(--bg-primary);
             min-height: 100vh;
-            padding: 20px;
+            padding: 10px;
             color: var(--text-primary);
             line-height: 1.6;
             transition: background-color 0.3s ease, color 0.3s ease;
@@ -232,8 +232,8 @@
             max-width: 1200px;
             margin: 0 auto;
             background: var(--bg-secondary);
-            border-radius: 12px;
-            box-shadow: var(--shadow-md);
+            border-radius: 8px;
+            box-shadow: none;
             overflow: hidden;
             transition: background-color 0.3s ease, box-shadow 0.3s ease;
         }
@@ -241,21 +241,22 @@
         .header {
             background: linear-gradient(135deg, var(--accent-gradient-start) 0%, var(--accent-gradient-end) 100%);
             color: white;
-            padding: 40px 30px;
+            padding: 25px 20px;
             text-align: center;
             position: relative;
             transition: background 0.3s ease;
         }
 
         .header h1 {
-            font-size: 2.5em;
+            font-size: 1.6em;
             margin-bottom: 10px;
             font-weight: 700;
             letter-spacing: -0.02em;
+            padding-right: 50px;
         }
 
         .header p {
-            font-size: 1.1em;
+            font-size: 0.95em;
             opacity: 0.95;
             font-weight: 400;
         }
@@ -294,7 +295,7 @@
         }
 
         .content {
-            padding: 40px;
+            padding: 20px;
         }
 
         .demo-section {
@@ -312,7 +313,7 @@
         }
 
         .section-title {
-            font-size: 2em;
+            font-size: 1.5em;
             color: var(--text-heading);
             margin-bottom: 20px;
             text-align: center;
@@ -323,10 +324,10 @@
 
         .description {
             background: var(--bg-tertiary);
-            padding: 20px;
+            padding: 15px;
             border-radius: 8px;
             margin-bottom: 30px;
-            font-size: 1.05em;
+            font-size: 0.95em;
             color: var(--text-secondary);
             text-align: center;
             border: 1px solid var(--border-primary);
@@ -692,10 +693,10 @@
         .info-box {
             background: var(--info-bg);
             border-left: 3px solid var(--info-border);
-            padding: 16px 20px;
+            padding: 12px 16px;
             margin: 20px 0;
             border-radius: 6px;
-            font-size: 0.95em;
+            font-size: 0.9em;
             line-height: 1.6;
             color: var(--text-secondary);
             transition: background-color 0.3s ease, border-color 0.3s ease, color 0.3s ease;
@@ -726,11 +727,27 @@
             background: var(--scrollbar-thumb-hover);
         }
 
-        /* Better focus states */
+        /* Better focus states - Enhanced for accessibility */
         .btn:focus,
-        .nav-btn:focus {
-            outline: 2px solid var(--accent-primary);
-            outline-offset: 2px;
+        .nav-btn:focus,
+        .theme-toggle:focus {
+            outline: 3px solid var(--accent-primary);
+            outline-offset: 3px;
+        }
+
+        /* Focus visible for keyboard navigation */
+        .btn:focus-visible,
+        .nav-btn:focus-visible,
+        .theme-toggle:focus-visible {
+            outline: 3px solid var(--accent-primary);
+            outline-offset: 3px;
+        }
+
+        /* Remove focus outline for mouse clicks, keep for keyboard */
+        .btn:focus:not(:focus-visible),
+        .nav-btn:focus:not(:focus-visible),
+        .theme-toggle:focus:not(:focus-visible) {
+            outline: none;
         }
 
         /* Smooth scrolling for changelog */
@@ -738,13 +755,107 @@
             scroll-behavior: smooth;
         }
 
+        /* Accessibility Enhancements */
+        
+        /* Ensure minimum spacing between interactive elements (8px minimum) */
+        .controls {
+            gap: 15px; /* Exceeds 8px minimum */
+        }
+
+        .navigation {
+            gap: 0; /* Buttons are adjacent but have internal padding for touch targets */
+        }
+
+        .legend {
+            gap: 20px; /* Exceeds 8px minimum */
+        }
+
+        /* Ensure all interactive elements have sufficient touch targets */
+        .btn,
+        .nav-btn,
+        .theme-toggle {
+            min-width: 44px;
+            min-height: 44px;
+        }
+
+        /* Improve focus visibility on all screen sizes */
+        .btn:focus-visible,
+        .nav-btn:focus-visible,
+        .theme-toggle:focus-visible {
+            outline: 3px solid var(--accent-primary);
+            outline-offset: 3px;
+            z-index: 1;
+        }
+
+        /* Ensure focus indicators work in dark mode */
+        [data-theme="dark"] .btn:focus-visible,
+        [data-theme="dark"] .nav-btn:focus-visible,
+        [data-theme="dark"] .theme-toggle:focus-visible {
+            outline-color: var(--accent-primary);
+        }
+
+        /* Skip to content link for keyboard navigation (if added to HTML) */
+        .skip-to-content {
+            position: absolute;
+            top: -40px;
+            left: 0;
+            background: var(--accent-primary);
+            color: white;
+            padding: 8px 16px;
+            text-decoration: none;
+            z-index: 100;
+            border-radius: 0 0 4px 0;
+        }
+
+        .skip-to-content:focus {
+            top: 0;
+        }
+
+        /* Ensure proper contrast for all text elements */
+        .nav-btn {
+            color: var(--text-tertiary);
+        }
+
+        .nav-btn.active {
+            color: var(--accent-primary);
+        }
+
+        /* Improve clickable area for small elements */
+        .legend-item {
+            cursor: default;
+            padding: 4px;
+        }
+
+        /* Ensure code blocks are keyboard accessible */
+        .code-block {
+            overflow-x: auto;
+            overflow-y: hidden;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .code-block:focus {
+            outline: 2px solid var(--accent-primary);
+            outline-offset: 2px;
+        }
+
+        /* Ensure tables are keyboard accessible */
+        .table-container {
+            overflow-x: auto;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .table-container:focus {
+            outline: 2px solid var(--accent-primary);
+            outline-offset: 2px;
+        }
+
         /* Theme Toggle Button */
         .theme-toggle {
             position: absolute;
-            top: 20px;
-            right: 30px;
-            width: 44px;
-            height: 44px;
+            top: 12px;
+            right: 12px;
+            width: 36px;
+            height: 36px;
             background: rgba(255, 255, 255, 0.2);
             border: 1px solid rgba(255, 255, 255, 0.3);
             border-radius: 8px;
@@ -754,7 +865,7 @@
             justify-content: center;
             transition: all 0.2s ease;
             backdrop-filter: blur(10px);
-            font-size: 1.3em;
+            font-size: 1.1em;
             padding: 0;
         }
 
@@ -768,10 +879,7 @@
             transform: scale(0.95);
         }
 
-        .theme-toggle:focus {
-            outline: 2px solid rgba(255, 255, 255, 0.8);
-            outline-offset: 2px;
-        }
+        /* Focus state handled by global focus rules above */
 
         .theme-icon {
             display: inline-block;
@@ -782,29 +890,1111 @@
             transform: rotate(20deg);
         }
 
+        /* Mobile Breakpoint Styles (≤480px) */
+        @media (max-width: 480px) {
+            /* 2.1 Mobile Header and Navigation Styles */
+            .header {
+                padding: 25px 20px;
+            }
+
+            .header h1 {
+                font-size: 1.6em;
+                padding-right: 50px;
+            }
+
+            .header p {
+                font-size: 0.95em;
+            }
+
+            .theme-toggle {
+                width: 44px; /* Increased to meet 44x44px touch target requirement */
+                height: 44px;
+                top: 10px;
+                right: 10px;
+                font-size: 1.1em;
+            }
+
+            /* Adjust header padding to accommodate larger theme toggle */
+            .header h1 {
+                padding-right: 60px;
+            }
+
+            .navigation {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+                scroll-snap-type: x proximity;
+            }
+
+            .nav-btn {
+                padding: 12px 16px;
+                font-size: 0.85em;
+                min-width: 140px; /* Exceeds 44px minimum */
+                scroll-snap-align: start;
+                min-height: 44px; /* Meets 44x44px touch target requirement */
+            }
+
+            /* Ensure proper spacing between navigation buttons on mobile */
+            /* Buttons are adjacent but internal padding provides touch target separation */
+
+            /* 2.2 Mobile Typography and Content Styles */
+            .section-title {
+                font-size: 1.5em;
+            }
+
+            .description {
+                font-size: 0.95em;
+                padding: 15px;
+            }
+
+            .info-box {
+                font-size: 0.9em;
+                padding: 12px 16px;
+            }
+
+            /* 2.3 Mobile Control Button Styles */
+            .controls {
+                flex-direction: column;
+                gap: 12px; /* Exceeds 8px minimum spacing requirement */
+                width: 100%;
+            }
+
+            .btn {
+                width: 100%;
+                padding: 12px 20px;
+                font-size: 0.9em;
+                min-height: 44px; /* Meets 44x44px touch target requirement */
+                min-width: 44px;
+            }
+
+            /* Ensure focus indicators are visible on mobile */
+            .btn:focus-visible,
+            .nav-btn:focus-visible,
+            .theme-toggle:focus-visible {
+                outline: 3px solid var(--accent-primary);
+                outline-offset: 2px; /* Slightly reduced for mobile to prevent overflow */
+            }
+
+            /* 2.4 Mobile Split-View Layout */
+            .split-view {
+                grid-template-columns: 1fr;
+                gap: 20px;
+            }
+
+            /* 2.5 Mobile Tables and Visualizations */
+            .table-container {
+                overflow-x: auto;
+            }
+
+            th {
+                padding: 10px 12px;
+                font-size: 0.8em;
+            }
+
+            td {
+                padding: 8px 12px;
+                font-size: 0.85em;
+            }
+
+            .table-label {
+                padding: 10px 15px;
+                font-size: 0.875em;
+            }
+
+            .visualization {
+                padding: 15px;
+                min-height: 300px;
+                border-radius: 6px;
+            }
+
+            /* 2.6 Mobile Stream Container and Events */
+            .stream-container {
+                height: 120px;
+            }
+
+            .event {
+                padding: 8px 12px;
+                font-size: 0.75em;
+            }
+
+            .stream-label {
+                font-size: 0.8em;
+                padding: 5px 12px;
+            }
+
+            .stream-arrow {
+                font-size: 1.5em;
+            }
+
+            /* 2.7 Mobile Code Blocks */
+            .code-block {
+                padding: 12px;
+                font-size: 0.75em;
+                line-height: 1.6;
+                border-radius: 6px;
+            }
+
+            .code-block::-webkit-scrollbar {
+                height: 6px;
+            }
+
+            /* 2.8 Mobile Feature Boxes and Grids */
+            /* Target the grid layout in section 0 */
+            .visualization > div > div[style*="grid-template-columns"] {
+                grid-template-columns: 1fr !important;
+                gap: 15px !important;
+            }
+
+            /* Target feature boxes in section 0 */
+            .visualization > div > div[style*="grid-template-columns"] > div {
+                padding: 15px !important;
+            }
+
+            .visualization > div > div[style*="grid-template-columns"] > div h4 {
+                font-size: 1.1em;
+            }
+
+            .visualization > div > div[style*="grid-template-columns"] > div p {
+                font-size: 0.9em;
+            }
+
+            /* 2.9 Mobile Changelog and Legend */
+            .changelog-entry {
+                padding: 8px 12px;
+                font-size: 0.8em;
+            }
+
+            .legend {
+                flex-direction: column;
+                gap: 10px; /* Exceeds 8px minimum spacing requirement */
+                align-items: flex-start;
+            }
+
+            .legend-color {
+                width: 16px;
+                height: 16px;
+            }
+
+            .legend-item {
+                font-size: 0.85em;
+                padding: 6px; /* Add padding for better touch target */
+                min-height: 28px; /* Reasonable touch target for non-interactive element */
+            }
+
+            /* 2.10 Mobile Conversion Arrows and Duality Visualization */
+            .conversion-arrow {
+                font-size: 2em;
+                margin: 15px 0;
+            }
+
+            @keyframes bounce {
+                0%, 100% { transform: translateY(0); }
+                50% { transform: translateY(-5px); }
+            }
+
+            /* Target the duality visualization boxes in section 0 */
+            .visualization > div[style*="text-align: center"] > div[style*="display: inline-block"][style*="padding: 30px"] {
+                display: block !important;
+                padding: 20px !important;
+                margin: 15px auto !important;
+                max-width: 280px;
+            }
+
+            .visualization > div[style*="text-align: center"] > div[style*="display: inline-block"][style*="padding: 30px"] h3 {
+                font-size: 1.2em;
+            }
+
+            /* Target the arrow between duality boxes */
+            .visualization > div[style*="text-align: center"] > div[style*="font-size: 3em"] {
+                display: block !important;
+                margin: 10px auto !important;
+                font-size: 2em !important;
+                transform: rotate(90deg);
+            }
+
+            /* Touch and Performance Optimizations */
+            /* Apply touch-action to all interactive elements */
+            .btn,
+            .nav-btn,
+            .theme-toggle,
+            button,
+            a {
+                touch-action: manipulation;
+            }
+
+            /* Reduce tap highlight for better UX */
+            .btn,
+            .nav-btn,
+            .theme-toggle {
+                -webkit-tap-highlight-color: rgba(0, 0, 0, 0.1);
+            }
+
+            /* Smooth iOS scrolling for all scrollable containers */
+            .navigation,
+            .table-container,
+            .code-block,
+            .changelog {
+                -webkit-overflow-scrolling: touch;
+            }
+
+            /* Performance: Simplify shadows on mobile */
+            .container {
+                box-shadow: none;
+            }
+
+            .code-block {
+                box-shadow: none;
+            }
+
+            .btn {
+                box-shadow: none;
+            }
+
+            .event {
+                box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
+            }
+
+            /* Performance: Use transform and opacity for animations (GPU-accelerated) */
+            /* Already implemented in animation keyframes above */
+
+            /* Performance: Minimize reflows with fixed dimensions */
+            .stream-container {
+                height: 120px; /* Fixed height prevents reflow */
+            }
+
+            .visualization {
+                min-height: 300px; /* Fixed min-height prevents reflow */
+            }
+
+            .btn {
+                min-height: 44px; /* Fixed height for touch targets */
+            }
+
+            .nav-btn {
+                min-height: 44px; /* Fixed height for touch targets */
+            }
+
+            /* Performance: Reduce paint complexity */
+            .table-container {
+                contain: layout style paint;
+            }
+
+            .code-block {
+                contain: layout style paint;
+            }
+
+            .visualization {
+                contain: layout style;
+            }
+
+            /* Performance: Optimize transitions - only animate necessary properties */
+            * {
+                transition-property: background-color, color, border-color, opacity, transform;
+            }
+
+            /* Performance: Disable expensive transitions on mobile */
+            .container,
+            .demo-section,
+            .visualization,
+            .stream-container,
+            .table-container {
+                transition-duration: 0.2s;
+            }
+
+            /* Reduce animation amplitude for mobile */
+            @keyframes slideIn {
+                from {
+                    left: -150px;
+                    opacity: 0;
+                }
+                to {
+                    left: var(--final-position);
+                    opacity: 1;
+                }
+            }
+
+            /* Animation Performance Optimizations */
+            /* Add will-change to animated elements for better performance */
+            .event {
+                will-change: left, opacity;
+            }
+
+            .demo-section.active {
+                will-change: opacity, transform;
+            }
+
+            .changelog-entry {
+                will-change: transform, opacity;
+            }
+
+            .conversion-arrow {
+                will-change: transform;
+            }
+
+            .stream-arrow {
+                will-change: opacity;
+            }
+
+            /* Optimize row animations - use transform instead of scale where possible */
+            .row-insert,
+            .row-update,
+            .row-delete {
+                will-change: background-color, transform;
+            }
+
+            /* Reduce animation duration for faster mobile performance */
+            .demo-section.active {
+                animation-duration: 0.3s;
+            }
+
+            .changelog-entry {
+                animation-duration: 0.3s;
+            }
+
+            /* Ensure animations maintain 30fps minimum by using GPU-accelerated properties */
+            @keyframes fadeIn {
+                from { 
+                    opacity: 0; 
+                    transform: translateY(10px) translateZ(0);
+                }
+                to { 
+                    opacity: 1; 
+                    transform: translateY(0) translateZ(0);
+                }
+            }
+
+            @keyframes slideInFromLeft {
+                from { 
+                    transform: translateX(-15px) translateZ(0); 
+                    opacity: 0; 
+                }
+                to { 
+                    transform: translateX(0) translateZ(0); 
+                    opacity: 1; 
+                }
+            }
+        }
+
+        /* Remove hover effects on touch devices - applies to all breakpoints */
+        @media (hover: none) {
+            .btn:hover,
+            .nav-btn:hover,
+            .theme-toggle:hover {
+                transform: none;
+            }
+
+            .btn-primary:hover {
+                box-shadow: var(--shadow-sm);
+                background: var(--accent-primary);
+            }
+
+            .btn-secondary:hover {
+                background: var(--border-secondary);
+            }
+
+            .nav-btn:hover {
+                background: transparent;
+                color: var(--text-tertiary);
+            }
+
+            .nav-btn.active:hover {
+                background: var(--bg-secondary);
+                color: var(--accent-primary);
+            }
+        }
+
+        /* Tablet Portrait Breakpoint Styles (481px - 768px) */
+        @media (min-width: 481px) and (max-width: 768px) {
+            /* 3.1 Tablet Portrait Layout Styles */
+            body {
+                padding: 15px;
+            }
+
+            .content {
+                padding: 30px;
+            }
+
+            .header {
+                padding: 30px 25px;
+            }
+
+            .header h1 {
+                font-size: 2em;
+                padding-right: 60px;
+            }
+
+            .header p {
+                font-size: 1em;
+            }
+
+            .theme-toggle {
+                width: 40px;
+                height: 40px;
+                font-size: 1.2em;
+                top: 15px;
+                right: 20px;
+            }
+
+            .navigation {
+                overflow-x: auto;
+                -webkit-overflow-scrolling: touch;
+            }
+
+            .nav-btn {
+                padding: 14px 18px;
+                font-size: 0.9em;
+                min-height: 44px; /* Meets 44x44px touch target requirement */
+                min-width: 44px;
+            }
+
+            /* Ensure focus indicators remain visible on tablet */
+            .btn:focus-visible,
+            .nav-btn:focus-visible,
+            .theme-toggle:focus-visible {
+                outline: 3px solid var(--accent-primary);
+                outline-offset: 3px;
+            }
+
+            /* 3.2 Tablet Portrait Split-Views and Grids */
+            .split-view {
+                grid-template-columns: 1fr;
+                gap: 25px;
+            }
+
+            /* Grid layouts - 2 columns where appropriate */
+            .visualization > div > div[style*="grid-template-columns"] {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 18px !important;
+            }
+
+            .visualization > div > div[style*="grid-template-columns"] > div {
+                padding: 18px !important;
+            }
+
+            /* 3.3 Tablet Portrait Component Sizing */
+            .section-title {
+                font-size: 1.75em;
+            }
+
+            .description {
+                padding: 18px;
+                font-size: 1em;
+            }
+
+            .info-box {
+                padding: 14px 18px;
+                font-size: 0.925em;
+            }
+
+            /* Button sizing */
+            .controls {
+                flex-direction: row;
+                flex-wrap: wrap;
+                gap: 15px; /* Exceeds 8px minimum spacing requirement */
+            }
+
+            .btn {
+                padding: 11px 22px;
+                font-size: 0.95em;
+                min-width: 120px; /* Exceeds 44px minimum */
+                min-height: 44px; /* Meets 44x44px touch target requirement */
+            }
+
+            /* Table styles */
+            th {
+                padding: 12px 14px;
+                font-size: 0.85em;
+            }
+
+            td {
+                padding: 10px 14px;
+                font-size: 0.9em;
+            }
+
+            .table-label {
+                padding: 11px 18px;
+                font-size: 0.9em;
+            }
+
+            /* Code block styles */
+            .code-block {
+                padding: 16px;
+                font-size: 0.8em;
+                line-height: 1.65;
+            }
+
+            /* Visualization container */
+            .visualization {
+                padding: 20px;
+                min-height: 350px;
+            }
+
+            /* Stream container */
+            .stream-container {
+                height: 135px;
+            }
+
+            .event {
+                padding: 9px 14px;
+                font-size: 0.8em;
+            }
+
+            .stream-label {
+                font-size: 0.85em;
+                padding: 6px 14px;
+            }
+
+            .stream-arrow {
+                font-size: 1.75em;
+            }
+
+            /* Changelog */
+            .changelog-entry {
+                padding: 9px 13px;
+                font-size: 0.85em;
+            }
+
+            /* Legend */
+            .legend {
+                gap: 15px; /* Exceeds 8px minimum spacing requirement */
+                flex-wrap: wrap;
+            }
+
+            .legend-color {
+                width: 18px;
+                height: 18px;
+            }
+
+            .legend-item {
+                font-size: 0.9em;
+                padding: 6px; /* Add padding for better touch target */
+            }
+
+            /* Conversion arrow */
+            .conversion-arrow {
+                font-size: 2.5em;
+                margin: 18px 0;
+            }
+
+            /* Duality visualization boxes */
+            .visualization > div[style*="text-align: center"] > div[style*="display: inline-block"][style*="padding: 30px"] {
+                padding: 25px !important;
+                margin: 0 10px !important;
+            }
+
+            .visualization > div[style*="text-align: center"] > div[style*="display: inline-block"][style*="padding: 30px"] h3 {
+                font-size: 1.3em;
+            }
+
+            .visualization > div[style*="text-align: center"] > div[style*="font-size: 3em"] {
+                font-size: 2.5em !important;
+            }
+        }
+
+        /* Tablet Landscape Breakpoint Styles (769px - 1024px) */
+        @media (min-width: 769px) and (max-width: 1024px) {
+            /* 4.1 Tablet Landscape Layout Styles */
+            body {
+                padding: 18px;
+            }
+
+            .content {
+                padding: 35px;
+            }
+
+            .container {
+                max-width: 1000px;
+                border-radius: 10px;
+                box-shadow: var(--shadow-sm);
+            }
+
+            .header {
+                padding: 35px 28px;
+            }
+
+            .header h1 {
+                font-size: 2.2em;
+                padding-right: 65px;
+            }
+
+            .header p {
+                font-size: 1.05em;
+            }
+
+            .theme-toggle {
+                width: 42px;
+                height: 42px;
+                font-size: 1.25em;
+                top: 18px;
+                right: 25px;
+            }
+
+            .navigation {
+                overflow-x: visible;
+            }
+
+            .nav-btn {
+                padding: 15px 19px;
+                font-size: 0.925em;
+                min-height: 44px; /* Meets 44x44px touch target requirement */
+                min-width: 44px;
+            }
+
+            /* Restore two-column split-view layout */
+            .split-view {
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+            }
+
+            /* 4.2 Tablet Landscape Component Sizing */
+            .section-title {
+                font-size: 1.85em;
+            }
+
+            .description {
+                padding: 19px;
+                font-size: 1.02em;
+            }
+
+            .info-box {
+                padding: 15px 19px;
+                font-size: 0.94em;
+            }
+
+            /* Button sizing - desktop-like */
+            .controls {
+                flex-direction: row;
+                gap: 15px; /* Exceeds 8px minimum spacing requirement */
+            }
+
+            .btn {
+                padding: 10px 23px;
+                font-size: 0.95em;
+                min-width: 44px; /* Meets 44x44px touch target requirement */
+                min-height: 44px;
+            }
+
+            /* Table styles */
+            th {
+                padding: 13px 15px;
+                font-size: 0.88em;
+            }
+
+            td {
+                padding: 11px 15px;
+                font-size: 0.93em;
+            }
+
+            .table-label {
+                padding: 11px 19px;
+                font-size: 0.93em;
+            }
+
+            /* Code block styles */
+            .code-block {
+                padding: 20px;
+                font-size: 0.85em;
+                line-height: 1.68;
+            }
+
+            /* Visualization container */
+            .visualization {
+                padding: 25px;
+                min-height: 380px;
+                border-radius: 8px;
+            }
+
+            /* Stream container */
+            .stream-container {
+                height: 145px;
+            }
+
+            .event {
+                padding: 9px 15px;
+                font-size: 0.85em;
+            }
+
+            .stream-label {
+                font-size: 0.88em;
+                padding: 6px 15px;
+            }
+
+            .stream-arrow {
+                font-size: 1.9em;
+            }
+
+            /* Changelog */
+            .changelog-entry {
+                padding: 9px 14px;
+                font-size: 0.875em;
+            }
+
+            /* Legend */
+            .legend {
+                gap: 18px; /* Exceeds 8px minimum spacing requirement */
+                flex-wrap: wrap;
+            }
+
+            .legend-color {
+                width: 19px;
+                height: 19px;
+            }
+
+            .legend-item {
+                font-size: 0.93em;
+                padding: 6px; /* Add padding for better touch target */
+            }
+
+            /* Conversion arrow */
+            .conversion-arrow {
+                font-size: 2.8em;
+                margin: 19px 0;
+            }
+
+            /* Grid layouts - optimal for tablet display */
+            .visualization > div > div[style*="grid-template-columns"] {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 19px !important;
+            }
+
+            .visualization > div > div[style*="grid-template-columns"] > div {
+                padding: 19px !important;
+            }
+
+            .visualization > div > div[style*="grid-template-columns"] > div h4 {
+                font-size: 1.15em;
+            }
+
+            .visualization > div > div[style*="grid-template-columns"] > div p {
+                font-size: 0.93em;
+            }
+
+            /* Duality visualization boxes - maintain horizontal layout */
+            .visualization > div[style*="text-align: center"] > div[style*="display: inline-block"][style*="padding: 30px"] {
+                padding: 28px !important;
+                margin: 0 12px !important;
+            }
+
+            .visualization > div[style*="text-align: center"] > div[style*="display: inline-block"][style*="padding: 30px"] h3 {
+                font-size: 1.35em;
+            }
+
+            .visualization > div[style*="text-align: center"] > div[style*="font-size: 3em"] {
+                font-size: 2.8em !important;
+            }
+        }
+
+        @media (min-width: 1025px) {
+            body {
+                padding: 20px;
+            }
+
+            .container {
+                border-radius: 12px;
+                box-shadow: var(--shadow-md);
+            }
+
+            .content {
+                padding: 40px;
+            }
+
+            .header {
+                padding: 40px 30px;
+            }
+
+            .header h1 {
+                font-size: 2.5em;
+                padding-right: 70px;
+            }
+
+            .header p {
+                font-size: 1.1em;
+            }
+
+            .section-title {
+                font-size: 2em;
+            }
+
+            .description {
+                padding: 20px;
+                font-size: 1.05em;
+            }
+
+            .info-box {
+                padding: 16px 20px;
+                font-size: 0.95em;
+            }
+
+            .theme-toggle {
+                top: 20px;
+                right: 30px;
+                width: 44px;
+                height: 44px;
+                font-size: 1.3em;
+            }
+        }
+
+        /* Mobile-specific: Stack split-views on mobile and tablet portrait */
         @media (max-width: 768px) {
             .split-view {
                 grid-template-columns: 1fr;
             }
-            
+        }
+
+        /* Orientation-Specific Adjustments */
+        
+        /* Mobile Landscape (≤768px in landscape) */
+        @media (max-width: 768px) and (orientation: landscape) {
+            /* Reduce vertical padding to maximize viewport usage */
+            .header {
+                padding: 15px 20px;
+            }
+
             .header h1 {
-                font-size: 1.8em;
+                font-size: 1.4em;
             }
-            
+
+            .header p {
+                font-size: 0.9em;
+            }
+
             .content {
-                padding: 20px;
+                padding: 15px;
             }
 
-            .code-block {
+            /* Reduce vertical spacing in sections */
+            .section-title {
+                font-size: 1.3em;
+                margin-bottom: 15px;
+            }
+
+            .description {
+                padding: 12px 15px;
+                margin-bottom: 20px;
+            }
+
+            /* Optimize controls for landscape - keep horizontal layout */
+            .controls {
+                flex-direction: row;
+                gap: 10px; /* Exceeds 8px minimum spacing requirement */
+                margin-bottom: 20px;
+            }
+
+            .btn {
+                width: auto;
+                padding: 10px 18px;
+                min-height: 44px; /* Maintain 44px minimum even in landscape */
+                min-width: 44px;
+                flex: 1;
+            }
+
+            /* Ensure focus indicators remain visible in landscape */
+            .btn:focus-visible,
+            .nav-btn:focus-visible,
+            .theme-toggle:focus-visible {
+                outline: 3px solid var(--accent-primary);
+                outline-offset: 2px;
+            }
+
+            /* Reduce visualization heights for landscape */
+            .visualization {
+                padding: 15px;
+                min-height: 250px;
+            }
+
+            .stream-container {
+                height: 100px;
+            }
+
+            .event {
+                padding: 6px 10px;
+                font-size: 0.7em;
+            }
+
+            .stream-label {
+                font-size: 0.75em;
+                padding: 4px 10px;
+            }
+
+            .stream-arrow {
+                font-size: 1.3em;
+            }
+
+            /* Optimize split-view for landscape - use two columns if space allows */
+            .split-view {
+                grid-template-columns: 1fr 1fr;
+                gap: 15px;
+            }
+
+            /* Reduce table padding */
+            th {
+                padding: 8px 10px;
+                font-size: 0.75em;
+            }
+
+            td {
+                padding: 6px 10px;
                 font-size: 0.8em;
-                padding: 16px;
             }
 
+            .table-label {
+                padding: 8px 12px;
+                font-size: 0.8em;
+            }
+
+            /* Reduce code block padding */
+            .code-block {
+                padding: 10px;
+                font-size: 0.7em;
+                line-height: 1.5;
+            }
+
+            /* Optimize changelog for landscape */
+            .changelog-entry {
+                padding: 6px 10px;
+                font-size: 0.75em;
+            }
+
+            /* Keep legend horizontal in landscape */
+            .legend {
+                flex-direction: row;
+                gap: 12px; /* Exceeds 8px minimum spacing requirement */
+                flex-wrap: wrap;
+                justify-content: center;
+            }
+
+            .legend-item {
+                font-size: 0.8em;
+                padding: 6px; /* Add padding for better touch target */
+            }
+
+            .legend-color {
+                width: 14px;
+                height: 14px;
+            }
+
+            /* Reduce conversion arrow size */
+            .conversion-arrow {
+                font-size: 1.8em;
+                margin: 10px 0;
+            }
+
+            /* Optimize duality visualization for landscape */
+            .visualization > div[style*="text-align: center"] > div[style*="display: inline-block"][style*="padding: 30px"] {
+                display: inline-block !important;
+                padding: 15px !important;
+                margin: 0 8px !important;
+                max-width: 220px;
+            }
+
+            .visualization > div[style*="text-align: center"] > div[style*="display: inline-block"][style*="padding: 30px"] h3 {
+                font-size: 1.1em;
+            }
+
+            .visualization > div[style*="text-align: center"] > div[style*="font-size: 3em"] {
+                display: inline-block !important;
+                margin: 0 10px !important;
+                font-size: 1.8em !important;
+                transform: none;
+            }
+
+            /* Optimize feature boxes grid for landscape */
+            .visualization > div > div[style*="grid-template-columns"] {
+                grid-template-columns: repeat(2, 1fr) !important;
+                gap: 12px !important;
+            }
+
+            .visualization > div > div[style*="grid-template-columns"] > div {
+                padding: 12px !important;
+            }
+
+            .visualization > div > div[style*="grid-template-columns"] > div h4 {
+                font-size: 1em;
+            }
+
+            .visualization > div > div[style*="grid-template-columns"] > div p {
+                font-size: 0.85em;
+            }
+
+            /* Reduce info box padding */
+            .info-box {
+                padding: 10px 12px;
+                font-size: 0.85em;
+            }
+
+            /* Optimize navigation for landscape */
+            .nav-btn {
+                padding: 10px 14px;
+                font-size: 0.8em;
+                min-height: 44px; /* Maintain 44px minimum for accessibility */
+                min-width: 44px;
+            }
+
+            /* Theme toggle - maintain minimum touch target */
             .theme-toggle {
-                top: 15px;
-                right: 15px;
-                width: 40px;
-                height: 40px;
-                font-size: 1.2em;
+                width: 44px; /* Maintain 44x44px touch target requirement */
+                height: 44px;
+                font-size: 1em;
+                top: 8px;
+                right: 8px;
+            }
+
+            /* Adjust header to accommodate theme toggle */
+            .header h1 {
+                padding-right: 60px;
+            }
+        }
+
+        /* Tablet Landscape Orientation Optimization (769px - 1024px in landscape) */
+        @media (min-width: 769px) and (max-width: 1024px) and (orientation: landscape) {
+            /* Tablet landscape already has good defaults from the main tablet landscape query */
+            /* Fine-tune for landscape orientation */
+            
+            .header {
+                padding: 28px 25px;
+            }
+
+            .content {
+                padding: 30px;
+            }
+
+            /* Ensure split-view uses two columns in landscape */
+            .split-view {
+                grid-template-columns: 1fr 1fr;
+                gap: 18px;
+            }
+
+            /* Optimize visualization height for landscape */
+            .visualization {
+                min-height: 320px;
+            }
+
+            .stream-container {
+                height: 130px;
+            }
+
+            /* Ensure feature grids use optimal columns */
+            .visualization > div > div[style*="grid-template-columns"] {
+                grid-template-columns: repeat(3, 1fr) !important;
+                gap: 16px !important;
+            }
+        }
+
+        /* Tablet Portrait Orientation (481px - 768px in portrait) */
+        @media (min-width: 481px) and (max-width: 768px) and (orientation: portrait) {
+            /* Portrait orientation already handled by main tablet portrait query */
+            /* Ensure single-column split-view in portrait */
+            .split-view {
+                grid-template-columns: 1fr;
+                gap: 25px;
+            }
+
+            /* Optimize vertical spacing for portrait */
+            .visualization {
+                min-height: 350px;
+            }
+
+            /* Keep feature boxes in 2-column grid for portrait tablet */
+            .visualization > div > div[style*="grid-template-columns"] {
+                grid-template-columns: repeat(2, 1fr) !important;
             }
         }
