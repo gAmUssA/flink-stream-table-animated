@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flink Table-Stream Duality Interactive Demo</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚀 Flink Table-Stream Duality</h1>
+            <p>Interactive Demo: Understanding the Two Views of Data</p>
+        </div>
+
+        <div class="navigation">
+            <button class="nav-btn active" onclick="showSection(0)">📊 Core Concept</button>
+            <button class="nav-btn" onclick="showSection(1)">➡️ Stream to Table</button>
+            <button class="nav-btn" onclick="showSection(2)">⬅️ Table to Stream</button>
+            <button class="nav-btn" onclick="showSection(3)">🔄 Stream Types</button>
+            <button class="nav-btn" onclick="showSection(4)">📈 Live Aggregation</button>
+            <button class="nav-btn" onclick="showSection(5)">💻 Code Examples</button>
+        </div>
+
+        <div class="content">
+            <!-- Section 0: Core Concept -->
+            <div class="demo-section active" id="section-0">
+                <h2 class="section-title">The Core Concept</h2>
+                <div class="description">
+                    In Apache Flink, streams and tables are two sides of the same coin. 
+                    A stream can be viewed as a table, and a table can be viewed as a stream.
+                </div>
+
+                <div class="visualization">
+                    <div style="text-align: center; padding: 40px 0;">
+                        <div style="display: inline-block; padding: 30px; background: #e3f2fd; border-radius: 15px; margin: 20px;">
+                            <h3 style="color: #1976D2; margin-bottom: 20px;">🌊 STREAM</h3>
+                            <p style="color: #666;">Continuous flow of events</p>
+                            <p style="font-size: 0.9em; color: #999; margin-top: 10px;">Time-ordered sequence</p>
+                        </div>
+                        
+                        <div style="display: inline-block; font-size: 3em; color: #667eea; margin: 0 30px; vertical-align: middle;">⟷</div>
+                        
+                        <div style="display: inline-block; padding: 30px; background: #f3e5f5; border-radius: 15px; margin: 20px;">
+                            <h3 style="color: #7B1FA2; margin-bottom: 20px;">📊 TABLE</h3>
+                            <p style="color: #666;">Snapshot of data</p>
+                            <p style="font-size: 0.9em; color: #999; margin-top: 10px;">Relational structure</p>
+                        </div>
+                    </div>
+
+                    <div class="info-box">
+                        <strong>Key Insight:</strong> These are not two different data structures—they're two different 
+                        ways to interpret the same data! You can convert between them seamlessly in Flink.
+                    </div>
+
+                    <div style="margin-top: 40px;">
+                        <h3 style="text-align: center; margin-bottom: 20px; color: #333;">Why This Matters</h3>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+                            <div style="background: #e8f5e9; padding: 20px; border-radius: 10px;">
+                                <h4 style="color: #2e7d32; margin-bottom: 10px;">✅ Flexibility</h4>
+                                <p style="color: #666;">Use SQL on streaming data</p>
+                            </div>
+                            <div style="background: #fff3e0; padding: 20px; border-radius: 10px;">
+                                <h4 style="color: #ef6c00; margin-bottom: 10px;">✅ Unified API</h4>
+                                <p style="color: #666;">One framework for batch & stream</p>
+                            </div>
+                            <div style="background: #fce4ec; padding: 20px; border-radius: 10px;">
+                                <h4 style="color: #c2185b; margin-bottom: 10px;">✅ Interoperability</h4>
+                                <p style="color: #666;">Mix DataStream & Table APIs</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 1: Stream to Table -->
+            <div class="demo-section" id="section-1">
+                <h2 class="section-title">Stream → Table (Append-Only)</h2>
+                <div class="description">
+                    Watch how a stream of events builds up to form a table
+                </div>
+
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="streamToTable()">▶️ Start Animation</button>
+                    <button class="btn btn-secondary" onclick="resetStreamToTable()">🔄 Reset</button>
+                </div>
+
+                <div class="visualization">
+                    <div class="stream-container">
+                        <div class="stream-label">📨 Incoming Stream</div>
+                        <div class="stream-arrow">→</div>
+                        <div id="stream-events"></div>
+                    </div>
+
+                    <div class="conversion-arrow">↓</div>
+
+                    <div class="table-container">
+                        <div class="table-label">📊 Resulting Table (Growing)</div>
+                        <table id="append-table">
+                            <thead>
+                                <tr>
+                                    <th>User</th>
+                                    <th>Product</th>
+                                    <th>Amount</th>
+                                    <th>Time</th>
+                                </tr>
+                            </thead>
+                            <tbody id="append-table-body">
+                                <tr><td colspan="4" style="text-align: center; color: #999;">Table is empty - Start animation to see data</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+
+                    <div class="info-box" style="margin-top: 20px;">
+                        <strong>Append-Only Stream:</strong> Each event becomes a new row in the table. 
+                        The table grows continuously as more events arrive. This is the simplest form of stream-to-table conversion.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 2: Table to Stream -->
+            <div class="demo-section" id="section-2">
+                <h2 class="section-title">Table → Stream (Changelog)</h2>
+                <div class="description">
+                    Watch how table changes become a stream of changelog events
+                </div>
+
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="tableToStream()">▶️ Start Animation</button>
+                    <button class="btn btn-secondary" onclick="resetTableToStream()">🔄 Reset</button>
+                </div>
+
+                <div class="visualization">
+                    <div class="split-view">
+                        <div>
+                            <div class="table-container">
+                                <div class="table-label">📊 Dynamic Table</div>
+                                <table id="dynamic-table">
+                                    <thead>
+                                        <tr>
+                                            <th>User</th>
+                                            <th>Total</th>
+                                            <th>Count</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="dynamic-table-body">
+                                        <tr><td colspan="3" style="text-align: center; color: #999;">Start animation</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+
+                        <div>
+                            <div class="table-container">
+                                <div class="table-label">📝 Changelog Stream</div>
+                                <div id="changelog" class="changelog" style="padding: 15px; max-height: 300px; overflow-y: auto;">
+                                    <div style="text-align: center; color: #999;">Waiting for changes...</div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="legend">
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #28a745;"></div>
+                            <span>+I (Insert)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #ffc107;"></div>
+                            <span>-U (Update Before)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #17a2b8;"></div>
+                            <span>+U (Update After)</span>
+                        </div>
+                        <div class="legend-item">
+                            <div class="legend-color" style="background: #dc3545;"></div>
+                            <span>-D (Delete)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 3: Stream Types -->
+            <div class="demo-section" id="section-3">
+                <h2 class="section-title">Three Types of Streams</h2>
+                <div class="description">
+                    Flink supports different types of changelog streams
+                </div>
+
+                <div class="visualization">
+                    <div style="display: grid; gap: 30px;">
+                        <div style="background: #e8f5e9; padding: 25px; border-radius: 15px; border-left: 5px solid #4caf50;">
+                            <h3 style="color: #2e7d32; margin-bottom: 15px;">1️⃣ Insert-Only (Append) Stream</h3>
+                            <div class="code-block">
+<span class="comment">// Events only get added, never updated or deleted</span>
++I[Alice, 100]
++I[Bob, 50]
++I[Alice, 200]
+                            </div>
+                            <p style="color: #666; margin-top: 15px;"><strong>Use Case:</strong> Raw event logs, sensor data, clickstream data</p>
+                        </div>
+
+                        <div style="background: #fff3e0; padding: 25px; border-radius: 15px; border-left: 5px solid #ff9800;">
+                            <h3 style="color: #ef6c00; margin-bottom: 15px;">2️⃣ Retract Stream</h3>
+                            <div class="code-block">
+<span class="comment">// Updates sent as DELETE old + INSERT new</span>
++I[Alice, 100]     <span class="comment">// Insert</span>
+-D[Alice, 100]     <span class="comment">// Delete old value</span>
++I[Alice, 300]     <span class="comment">// Insert new value</span>
+                            </div>
+                            <p style="color: #666; margin-top: 15px;"><strong>Use Case:</strong> Aggregations without primary key, COUNT, SUM without GROUP BY key</p>
+                        </div>
+
+                        <div style="background: #e1f5fe; padding: 25px; border-radius: 15px; border-left: 5px solid #03a9f4;">
+                            <h3 style="color: #0277bd; margin-bottom: 15px;">3️⃣ Upsert Stream</h3>
+                            <div class="code-block">
+<span class="comment">// Updates modify in-place using a key</span>
++I[Alice, 100]     <span class="comment">// Insert</span>
++U[Alice, 300]     <span class="comment">// Update (replaces previous)</span>
+                            </div>
+                            <p style="color: #666; margin-top: 15px;"><strong>Use Case:</strong> Aggregations with primary key, database CDC, state updates</p>
+                        </div>
+                    </div>
+
+                    <div class="info-box" style="margin-top: 30px;">
+                        <strong>💡 Pro Tip:</strong> The stream type is automatically determined by Flink based on your query. 
+                        Queries with GROUP BY generate upsert streams, while append-only queries generate insert-only streams.
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 4: Live Aggregation -->
+            <div class="demo-section" id="section-4">
+                <h2 class="section-title">Live Aggregation Example</h2>
+                <div class="description">
+                    See how a stream of orders is aggregated in real-time
+                </div>
+
+                <div class="controls">
+                    <button class="btn btn-primary" onclick="startAggregation()">▶️ Start</button>
+                    <button class="btn btn-secondary" onclick="stopAggregation()">⏸️ Pause</button>
+                    <button class="btn btn-secondary" onclick="resetAggregation()">🔄 Reset</button>
+                </div>
+
+                <div class="visualization">
+                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                        <h3 style="margin-bottom: 15px;">SQL Query:</h3>
+                        <div class="code-block">
+<span class="keyword">SELECT</span> user,
+       <span class="function">SUM</span>(amount) <span class="keyword">as</span> total,
+       <span class="function">COUNT</span>(*) <span class="keyword">as</span> order_count
+<span class="keyword">FROM</span> orders
+<span class="keyword">GROUP BY</span> user
+                        </div>
+                    </div>
+
+                    <div class="split-view">
+                        <div>
+                            <h4 style="text-align: center; margin-bottom: 15px;">📨 Input Stream</h4>
+                            <div id="agg-input" style="background: #f8f9fa; padding: 15px; border-radius: 10px; min-height: 250px; max-height: 250px; overflow-y: auto; font-family: 'Courier New', monospace;">
+                                <div style="text-align: center; color: #999; padding: 50px 0;">Waiting for events...</div>
+                            </div>
+                        </div>
+
+                        <div>
+                            <h4 style="text-align: center; margin-bottom: 15px;">📊 Aggregated Result</h4>
+                            <div class="table-container">
+                                <table id="agg-result-table">
+                                    <thead>
+                                        <tr>
+                                            <th>User</th>
+                                            <th>Total</th>
+                                            <th>Order Count</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody id="agg-result-body">
+                                        <tr><td colspan="3" style="text-align: center; color: #999;">No data yet</td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div style="margin-top: 20px;">
+                        <h4 style="margin-bottom: 10px;">📝 Changelog Output:</h4>
+                        <div id="agg-changelog" class="changelog" style="background: #f8f9fa; padding: 15px; border-radius: 10px; max-height: 200px; overflow-y: auto;">
+                            <div style="text-align: center; color: #999;">Changelog will appear here...</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Section 5: Code Examples -->
+            <div class="demo-section" id="section-5">
+                <h2 class="section-title">Code Examples</h2>
+                <div class="description">
+                    See how to convert between streams and tables in Flink
+                </div>
+
+                <div class="visualization">
+                    <div style="margin-bottom: 40px;">
+                        <h3 style="color: #667eea; margin-bottom: 20px;">🔄 Stream → Table</h3>
+                        <div class="code-block">
+<span class="comment">// Create a DataStream</span>
+DataStream&lt;Order&gt; orderStream = env.fromElements(
+    <span class="keyword">new</span> <span class="function">Order</span>(<span class="string">"Alice"</span>, <span class="string">"Laptop"</span>, 1000),
+    <span class="keyword">new</span> <span class="function">Order</span>(<span class="string">"Bob"</span>, <span class="string">"Mouse"</span>, 50)
+);
+
+<span class="comment">// Convert to Table</span>
+tableEnv.<span class="function">createTemporaryView</span>(<span class="string">"orders"</span>, orderStream);
+Table ordersTable = tableEnv.<span class="function">from</span>(<span class="string">"orders"</span>);
+
+<span class="comment">// Now you can query with SQL!</span>
+Table result = tableEnv.<span class="function">sqlQuery</span>(
+    <span class="string">"SELECT user, SUM(amount) FROM orders GROUP BY user"</span>
+);
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 40px;">
+                        <h3 style="color: #667eea; margin-bottom: 20px;">🔄 Table → Stream</h3>
+                        <div class="code-block">
+<span class="comment">// You have a Table from a query</span>
+Table resultTable = tableEnv.<span class="function">sqlQuery</span>(
+    <span class="string">"SELECT user, SUM(amount) as total FROM orders GROUP BY user"</span>
+);
+
+<span class="comment">// Convert to DataStream (for insert-only results)</span>
+DataStream&lt;Row&gt; resultStream = tableEnv.<span class="function">toDataStream</span>(resultTable);
+
+<span class="comment">// Or as changelog stream (for updates/deletes)</span>
+DataStream&lt;Row&gt; changelogStream = tableEnv.<span class="function">toChangelogStream</span>(resultTable);
+
+<span class="comment">// Now process with DataStream API</span>
+resultStream
+    .<span class="function">map</span>(row -> <span class="string">"User: "</span> + row.getField(0))
+    .<span class="function">print</span>();
+                        </div>
+                    </div>
+
+                    <div style="margin-bottom: 40px;">
+                        <h3 style="color: #667eea; margin-bottom: 20px;">🔄 Table API (Fluent)</h3>
+                        <div class="code-block">
+<span class="keyword">import static</span> org.apache.flink.table.api.Expressions.*;
+
+<span class="comment">// Table API - no SQL strings!</span>
+Table result = ordersTable
+    .<span class="function">groupBy</span>($(<span class="string">"user"</span>))
+    .<span class="function">select</span>(
+        $(<span class="string">"user"</span>),
+        $(<span class="string">"amount"</span>).<span class="function">sum</span>().<span class="function">as</span>(<span class="string">"total"</span>),
+        $(<span class="string">"user"</span>).<span class="function">count</span>().<span class="function">as</span>(<span class="string">"order_count"</span>)
+    );
+                        </div>
+                    </div>
+
+                    <div>
+                        <h3 style="color: #667eea; margin-bottom: 20px;">🔄 Mixing Both APIs</h3>
+                        <div class="code-block">
+<span class="comment">// Start with DataStream</span>
+DataStream&lt;Order&gt; stream = env.<span class="function">addSource</span>(<span class="keyword">new</span> <span class="function">OrderSource</span>());
+
+<span class="comment">// Convert to Table and aggregate</span>
+tableEnv.<span class="function">createTemporaryView</span>(<span class="string">"orders"</span>, stream);
+Table aggregated = tableEnv.<span class="function">sqlQuery</span>(
+    <span class="string">"SELECT user, SUM(amount) as total FROM orders GROUP BY user"</span>
+);
+
+<span class="comment">// Back to DataStream for custom processing</span>
+DataStream&lt;Row&gt; resultStream = tableEnv.<span class="function">toChangelogStream</span>(aggregated);
+
+<span class="comment">// Apply custom DataStream operators</span>
+resultStream
+    .<span class="function">keyBy</span>(row -> row.getField(0))
+    .<span class="function">process</span>(<span class="keyword">new</span> <span class="function">MyProcessFunction</span>())
+    .<span class="function">print</span>();
+
+env.<span class="function">execute</span>();
+                        </div>
+                    </div>
+
+                    <div class="info-box" style="margin-top: 30px;">
+                        <strong>🎯 Best Practice:</strong> Use Table API/SQL for declarative operations (filtering, aggregations, joins) 
+                        and DataStream API for imperative processing (custom state, complex event processing). 
+                        Mix them freely to leverage the strengths of both!
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="script.js"></script>
+</html>
