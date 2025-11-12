@@ -11,6 +11,9 @@
         <div class="header">
             <h1>🐿️ Flink Table-Stream Duality</h1>
             <p>Interactive Demo: Understanding the Two Views of Data</p>
+            <button id="theme-toggle" class="theme-toggle" aria-label="Toggle theme">
+                <span class="theme-icon">🌙</span>
+            </button>
         </div>
 
         <div class="navigation">
@@ -33,18 +36,18 @@
 
                 <div class="visualization">
                     <div style="text-align: center; padding: 40px 0;">
-                        <div style="display: inline-block; padding: 30px; background: #e3f2fd; border-radius: 15px; margin: 20px;">
-                            <h3 style="color: #1976D2; margin-bottom: 20px;">🌊 STREAM</h3>
-                            <p style="color: #666;">Continuous flow of events</p>
-                            <p style="font-size: 0.9em; color: #999; margin-top: 10px;">Time-ordered sequence</p>
+                        <div style="display: inline-block; padding: 30px; background: var(--feature-stream-bg); border-radius: 15px; margin: 20px;">
+                            <h3 style="color: var(--feature-stream-heading); margin-bottom: 20px;">🌊 STREAM</h3>
+                            <p style="color: var(--ui-neutral-text);">Continuous flow of events</p>
+                            <p style="font-size: 0.9em; color: var(--ui-muted-text); margin-top: 10px;">Time-ordered sequence</p>
                         </div>
                         
-                        <div style="display: inline-block; font-size: 3em; color: #667eea; margin: 0 30px; vertical-align: middle;">⟷</div>
+                        <div style="display: inline-block; font-size: 3em; color: var(--ui-duality-arrow); margin: 0 30px; vertical-align: middle;">⟷</div>
                         
-                        <div style="display: inline-block; padding: 30px; background: #f3e5f5; border-radius: 15px; margin: 20px;">
-                            <h3 style="color: #7B1FA2; margin-bottom: 20px;">📊 TABLE</h3>
-                            <p style="color: #666;">Snapshot of data</p>
-                            <p style="font-size: 0.9em; color: #999; margin-top: 10px;">Relational structure</p>
+                        <div style="display: inline-block; padding: 30px; background: var(--feature-table-bg); border-radius: 15px; margin: 20px;">
+                            <h3 style="color: var(--feature-table-heading); margin-bottom: 20px;">📊 TABLE</h3>
+                            <p style="color: var(--ui-neutral-text);">Snapshot of data</p>
+                            <p style="font-size: 0.9em; color: var(--ui-muted-text); margin-top: 10px;">Relational structure</p>
                         </div>
                     </div>
 
@@ -54,19 +57,19 @@
                     </div>
 
                     <div style="margin-top: 40px;">
-                        <h3 style="text-align: center; margin-bottom: 20px; color: #333;">Why This Matters</h3>
+                        <h3 style="text-align: center; margin-bottom: 20px; color: var(--text-heading);">Why This Matters</h3>
                         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
-                            <div style="background: #e8f5e9; padding: 20px; border-radius: 10px;">
-                                <h4 style="color: #2e7d32; margin-bottom: 10px;">✅ Flexibility</h4>
-                                <p style="color: #666;">Use SQL on streaming data</p>
+                            <div style="background: var(--feature-flexibility-bg); padding: 20px; border-radius: 10px;">
+                                <h4 style="color: var(--feature-flexibility-heading); margin-bottom: 10px;">✅ Flexibility</h4>
+                                <p style="color: var(--ui-neutral-text);">Use SQL on streaming data</p>
                             </div>
-                            <div style="background: #fff3e0; padding: 20px; border-radius: 10px;">
-                                <h4 style="color: #ef6c00; margin-bottom: 10px;">✅ Unified API</h4>
-                                <p style="color: #666;">One framework for batch & stream</p>
+                            <div style="background: var(--feature-unified-bg); padding: 20px; border-radius: 10px;">
+                                <h4 style="color: var(--feature-unified-heading); margin-bottom: 10px;">✅ Unified API</h4>
+                                <p style="color: var(--ui-neutral-text);">One framework for batch & stream</p>
                             </div>
-                            <div style="background: #fce4ec; padding: 20px; border-radius: 10px;">
-                                <h4 style="color: #c2185b; margin-bottom: 10px;">✅ Interoperability</h4>
-                                <p style="color: #666;">Mix DataStream & Table APIs</p>
+                            <div style="background: var(--feature-interop-bg); padding: 20px; border-radius: 10px;">
+                                <h4 style="color: var(--feature-interop-heading); margin-bottom: 10px;">✅ Interoperability</h4>
+                                <p style="color: var(--ui-neutral-text);">Mix DataStream & Table APIs</p>
                             </div>
                         </div>
                     </div>
@@ -106,7 +109,7 @@
                                 </tr>
                             </thead>
                             <tbody id="append-table-body">
-                                <tr><td colspan="4" style="text-align: center; color: #999;">Table is empty - Start animation to see data</td></tr>
+                                <tr><td colspan="4" style="text-align: center; color: var(--ui-muted-text);">Table is empty - Start animation to see data</td></tr>
                             </tbody>
                         </table>
                     </div>
@@ -144,7 +147,7 @@
                                         </tr>
                                     </thead>
                                     <tbody id="dynamic-table-body">
-                                        <tr><td colspan="3" style="text-align: center; color: #999;">Start animation</td></tr>
+                                        <tr><td colspan="3" style="text-align: center; color: var(--ui-muted-text);">Start animation</td></tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -154,7 +157,7 @@
                             <div class="table-container">
                                 <div class="table-label">📝 Changelog Stream</div>
                                 <div id="changelog" class="changelog" style="padding: 15px; max-height: 300px; overflow-y: auto;">
-                                    <div style="text-align: center; color: #999;">Waiting for changes...</div>
+                                    <div style="text-align: center; color: var(--ui-muted-text);">Waiting for changes...</div>
                                 </div>
                             </div>
                         </div>
@@ -162,19 +165,19 @@
 
                     <div class="legend">
                         <div class="legend-item">
-                            <div class="legend-color" style="background: #28a745;"></div>
+                            <div class="legend-color" style="background: var(--legend-insert);"></div>
                             <span>+I (Insert)</span>
                         </div>
                         <div class="legend-item">
-                            <div class="legend-color" style="background: #ffc107;"></div>
+                            <div class="legend-color" style="background: var(--legend-update-before);"></div>
                             <span>-U (Update Before)</span>
                         </div>
                         <div class="legend-item">
-                            <div class="legend-color" style="background: #17a2b8;"></div>
+                            <div class="legend-color" style="background: var(--legend-update-after);"></div>
                             <span>+U (Update After)</span>
                         </div>
                         <div class="legend-item">
-                            <div class="legend-color" style="background: #dc3545;"></div>
+                            <div class="legend-color" style="background: var(--legend-delete);"></div>
                             <span>-D (Delete)</span>
                         </div>
                     </div>
@@ -190,30 +193,30 @@
 
                 <div class="visualization">
                     <div style="display: grid; gap: 30px;">
-                        <div style="background: #e8f5e9; padding: 25px; border-radius: 15px; border-left: 5px solid #4caf50;">
-                            <h3 style="color: #2e7d32; margin-bottom: 15px;">1️⃣ Insert-Only (Append) Stream</h3>
+                        <div style="background: var(--stream-insert-bg); padding: 25px; border-radius: 15px; border-left: 5px solid var(--stream-insert-border);">
+                            <h3 style="color: var(--stream-insert-heading); margin-bottom: 15px;">1️⃣ Insert-Only (Append) Stream</h3>
                             <div class="code-block"><span class="comment">// Events only get added, never updated or deleted</span>
 +I[Alice, 100]
 +I[Bob, 50]
 +I[Alice, 200]</div>
-                            <p style="color: #666; margin-top: 15px;"><strong>Use Case:</strong> Raw event logs, sensor data, clickstream data</p>
+                            <p style="color: var(--ui-neutral-text); margin-top: 15px;"><strong>Use Case:</strong> Raw event logs, sensor data, clickstream data</p>
                         </div>
 
-                        <div style="background: #fff3e0; padding: 25px; border-radius: 15px; border-left: 5px solid #ff9800;">
-                            <h3 style="color: #ef6c00; margin-bottom: 15px;">2️⃣ Retract Stream</h3>
+                        <div style="background: var(--stream-retract-bg); padding: 25px; border-radius: 15px; border-left: 5px solid var(--stream-retract-border);">
+                            <h3 style="color: var(--stream-retract-heading); margin-bottom: 15px;">2️⃣ Retract Stream</h3>
                             <div class="code-block"><span class="comment">// Updates sent as DELETE old + INSERT new</span>
 +I[Alice, 100]     <span class="comment">// Insert</span>
 -D[Alice, 100]     <span class="comment">// Delete old value</span>
 +I[Alice, 300]     <span class="comment">// Insert new value</span></div>
-                            <p style="color: #666; margin-top: 15px;"><strong>Use Case:</strong> Aggregations without primary key, COUNT, SUM without GROUP BY key</p>
+                            <p style="color: var(--ui-neutral-text); margin-top: 15px;"><strong>Use Case:</strong> Aggregations without primary key, COUNT, SUM without GROUP BY key</p>
                         </div>
 
-                        <div style="background: #e1f5fe; padding: 25px; border-radius: 15px; border-left: 5px solid #03a9f4;">
-                            <h3 style="color: #0277bd; margin-bottom: 15px;">3️⃣ Upsert Stream</h3>
+                        <div style="background: var(--stream-upsert-bg); padding: 25px; border-radius: 15px; border-left: 5px solid var(--stream-upsert-border);">
+                            <h3 style="color: var(--stream-upsert-heading); margin-bottom: 15px;">3️⃣ Upsert Stream</h3>
                             <div class="code-block"><span class="comment">// Updates modify in-place using a key</span>
 +I[Alice, 100]     <span class="comment">// Insert</span>
 +U[Alice, 300]     <span class="comment">// Update (replaces previous)</span></div>
-                            <p style="color: #666; margin-top: 15px;"><strong>Use Case:</strong> Aggregations with primary key, database CDC, state updates</p>
+                            <p style="color: var(--ui-neutral-text); margin-top: 15px;"><strong>Use Case:</strong> Aggregations with primary key, database CDC, state updates</p>
                         </div>
                     </div>
 
@@ -238,7 +241,7 @@
                 </div>
 
                 <div class="visualization">
-                    <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
+                    <div style="background: var(--ui-neutral-bg); padding: 20px; border-radius: 10px; margin-bottom: 20px;">
                         <h3 style="margin-bottom: 15px;">SQL Query:</h3>
                         <div class="code-block"><span class="keyword">SELECT</span> user,
        <span class="function">SUM</span>(amount) <span class="keyword">as</span> total,
@@ -250,8 +253,8 @@
                     <div class="split-view">
                         <div>
                             <h4 style="text-align: center; margin-bottom: 15px;">📨 Input Stream</h4>
-                            <div id="agg-input" style="background: #f8f9fa; padding: 15px; border-radius: 10px; min-height: 250px; max-height: 250px; overflow-y: auto; font-family: 'Courier New', monospace;">
-                                <div style="text-align: center; color: #999; padding: 50px 0;">Waiting for events...</div>
+                            <div id="agg-input" style="background: var(--ui-neutral-bg); padding: 15px; border-radius: 10px; min-height: 250px; max-height: 250px; overflow-y: auto; font-family: 'JetBrains Mono', monospace; font-size: 0.875em;">
+                                <div style="text-align: center; color: var(--ui-muted-text); padding: 50px 0;">Waiting for events...</div>
                             </div>
                         </div>
 
@@ -267,7 +270,7 @@
                                         </tr>
                                     </thead>
                                     <tbody id="agg-result-body">
-                                        <tr><td colspan="3" style="text-align: center; color: #999;">No data yet</td></tr>
+                                        <tr><td colspan="3" style="text-align: center; color: var(--ui-muted-text);">No data yet</td></tr>
                                     </tbody>
                                 </table>
                             </div>
@@ -276,8 +279,8 @@
 
                     <div style="margin-top: 20px;">
                         <h4 style="margin-bottom: 10px;">📝 Changelog Output:</h4>
-                        <div id="agg-changelog" class="changelog" style="background: #f8f9fa; padding: 15px; border-radius: 10px; max-height: 200px; overflow-y: auto;">
-                            <div style="text-align: center; color: #999;">Changelog will appear here...</div>
+                        <div id="agg-changelog" class="changelog" style="background: var(--ui-neutral-bg); padding: 15px; border-radius: 10px; max-height: 200px; overflow-y: auto;">
+                            <div style="text-align: center; color: var(--ui-muted-text);">Changelog will appear here...</div>
                         </div>
                     </div>
                 </div>
@@ -292,7 +295,7 @@
 
                 <div class="visualization">
                     <div style="margin-bottom: 40px;">
-                        <h3 style="color: #667eea; margin-bottom: 20px;">🔄 Stream → Table</h3>
+                        <h3 style="color: var(--ui-duality-arrow); margin-bottom: 20px;">🔄 Stream → Table</h3>
                         <div class="code-block"><span class="comment">// Create a DataStream</span>
 DataStream&lt;Order&gt; orderStream = env.fromElements(
     <span class="keyword">new</span> <span class="function">Order</span>(<span class="string">"Alice"</span>, <span class="string">"Laptop"</span>, 1000),
@@ -310,7 +313,7 @@ Table result = tableEnv.<span class="function">sqlQuery</span>(
                     </div>
 
                     <div style="margin-bottom: 40px;">
-                        <h3 style="color: #667eea; margin-bottom: 20px;">🔄 Table → Stream</h3>
+                        <h3 style="color: var(--ui-duality-arrow); margin-bottom: 20px;">🔄 Table → Stream</h3>
                         <div class="code-block"><span class="comment">// You have a Table from a query</span>
 Table resultTable = tableEnv.<span class="function">sqlQuery</span>(
     <span class="string">"SELECT user, SUM(amount) as total FROM orders GROUP BY user"</span>
@@ -329,7 +332,7 @@ resultStream
                     </div>
 
                     <div style="margin-bottom: 40px;">
-                        <h3 style="color: #667eea; margin-bottom: 20px;">🔄 Table API (Fluent)</h3>
+                        <h3 style="color: var(--ui-duality-arrow); margin-bottom: 20px;">🔄 Table API (Fluent)</h3>
                         <div class="code-block"><span class="keyword">import static</span> org.apache.flink.table.api.Expressions.*;
 
 <span class="comment">// Table API - no SQL strings!</span>
@@ -343,7 +346,7 @@ Table result = ordersTable
                     </div>
 
                     <div>
-                        <h3 style="color: #667eea; margin-bottom: 20px;">🔄 Mixing Both APIs</h3>
+                        <h3 style="color: var(--ui-duality-arrow); margin-bottom: 20px;">🔄 Mixing Both APIs</h3>
                         <div class="code-block"><span class="comment">// Start with DataStream</span>
 DataStream&lt;Order&gt; stream = env.<span class="function">addSource</span>(<span class="keyword">new</span> <span class="function">OrderSource</span>());
 

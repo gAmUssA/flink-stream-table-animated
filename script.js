@@ -1,3 +1,132 @@
+        // Theme Management
+        const ThemeManager = {
+            STORAGE_KEY: 'theme-preference',
+            THEME_LIGHT: 'light',
+            THEME_DARK: 'dark',
+            
+            init() {
+                const theme = this.getCurrentTheme();
+                this.applyTheme(theme);
+                this.watchSystemTheme();
+                
+                // Set up toggle button listener
+                const toggleBtn = document.getElementById('theme-toggle');
+                if (toggleBtn) {
+                    toggleBtn.addEventListener('click', () => this.toggleTheme());
+                }
+            },
+            
+            getCurrentTheme() {
+                // Try to get saved theme from localStorage with validation
+                try {
+                    const saved = localStorage.getItem(this.STORAGE_KEY);
+                    
+                    // Validate stored theme value
+                    if (saved === this.THEME_LIGHT || saved === this.THEME_DARK) {
+                        return saved;
+                    } else if (saved !== null) {
+                        // Invalid value found - clear it
+                        console.warn(`Invalid theme value "${saved}" found in localStorage. Clearing...`);
+                        localStorage.removeItem(this.STORAGE_KEY);
+                    }
+                } catch (e) {
+                    // localStorage access failed (private browsing, quota exceeded, etc.)
+                    console.warn('localStorage not available, theme preference will not persist:', e.message);
+                }
+                
+                // Fall back to system preference
+                return this.getSystemTheme();
+            },
+            
+            getSystemTheme() {
+                // Feature detection for matchMedia API
+                if (!window.matchMedia) {
+                    console.warn('matchMedia API not supported, defaulting to light theme');
+                    return this.THEME_LIGHT;
+                }
+                
+                try {
+                    const darkModeQuery = window.matchMedia('(prefers-color-scheme: dark)');
+                    if (darkModeQuery.matches) {
+                        return this.THEME_DARK;
+                    }
+                } catch (e) {
+                    console.warn('Error detecting system theme preference:', e.message);
+                }
+                
+                return this.THEME_LIGHT;
+            },
+            
+            applyTheme(theme) {
+                // Validate theme parameter
+                const validTheme = (theme === this.THEME_DARK) ? this.THEME_DARK : this.THEME_LIGHT;
+                
+                if (theme !== validTheme) {
+                    console.warn(`Invalid theme "${theme}" provided, using "${validTheme}" instead`);
+                }
+                
+                document.documentElement.setAttribute('data-theme', validTheme);
+                
+                // Update toggle button icon
+                const toggleBtn = document.getElementById('theme-toggle');
+                if (toggleBtn) {
+                    const icon = toggleBtn.querySelector('.theme-icon');
+                    if (icon) {
+                        icon.textContent = validTheme === this.THEME_DARK ? '☀️' : '🌙';
+                    }
+                }
+            },
+            
+            toggleTheme() {
+                const current = document.documentElement.getAttribute('data-theme') || this.THEME_LIGHT;
+                const newTheme = current === this.THEME_DARK ? this.THEME_LIGHT : this.THEME_DARK;
+                this.applyTheme(newTheme);
+                this.saveTheme(newTheme);
+            },
+            
+            saveTheme(theme) {
+                try {
+                    localStorage.setItem(this.STORAGE_KEY, theme);
+                } catch (e) {
+                    // Handle localStorage errors (quota exceeded, private browsing, etc.)
+                    console.warn('Could not save theme preference to localStorage:', e.message);
+                }
+            },
+            
+            watchSystemTheme() {
+                // Feature detection for matchMedia API
+                if (!window.matchMedia) {
+                    console.warn('matchMedia API not supported, system theme changes will not be detected');
+                    return;
+                }
+                
+                try {
+                    const mediaQuery = window.matchMedia('(prefers-color-scheme: dark)');
+                    const handler = (e) => {
+                        // Only apply system theme if no manual preference is saved
+                        try {
+                            const saved = localStorage.getItem(this.STORAGE_KEY);
+                            if (!saved) {
+                                const newTheme = e.matches ? this.THEME_DARK : this.THEME_LIGHT;
+                                this.applyTheme(newTheme);
+                            }
+                        } catch (err) {
+                            console.warn('Could not check theme preference during system change:', err.message);
+                        }
+                    };
+                    
+                    // Use addEventListener (modern browsers)
+                    if (mediaQuery.addEventListener) {
+                        mediaQuery.addEventListener('change', handler);
+                    } else {
+                        console.warn('MediaQueryList.addEventListener not supported, system theme changes will not be detected');
+                    }
+                } catch (e) {
+                    console.warn('Error setting up system theme watcher:', e.message);
+                }
+            }
+        };
+
         // Navigation
         const sectionHashes = ['concept', 'stream-to-table', 'table-to-stream', 'stream-types', 'live-aggregation', 'code-examples'];
         
@@ -31,7 +160,10 @@
         window.addEventListener('hashchange', handleHashChange);
         
         // Handle initial load
-        window.addEventListener('DOMContentLoaded', handleHashChange);
+        window.addEventListener('DOMContentLoaded', () => {
+            ThemeManager.init();
+            handleHashChange();
+        });
 
         // Section 1: Stream to Table
         let streamEvents = [
@@ -192,7 +324,7 @@
                 
                 // Add to input stream
                 const event = document.createElement('div');
-                event.style.cssText = 'padding: 8px; margin: 5px 0; background: white; border-radius: 5px; animation: slideInFromLeft 0.3s;';
+                event.style.cssText = 'padding: 8px; margin: 5px 0; background: var(--bg-secondary); border: 1px solid var(--border-primary); border-radius: 5px; animation: slideInFromLeft 0.3s; color: var(--text-primary); font-family: "JetBrains Mono", monospace; font-size: 0.875em;';
                 event.innerHTML = `<strong>#${aggEventCount}</strong> Order{user: "${user}", amount: ${amount}}`;
                 inputDiv.insertBefore(event, inputDiv.firstChild);
                 
@@ -263,9 +395,9 @@
             aggState = {};
             aggEventCount = 0;
             document.getElementById('agg-input').innerHTML = 
-                '<div style="text-align: center; color: #999; padding: 50px 0;">Waiting for events...</div>';
+                '<div style="text-align: center; color: var(--ui-muted-text); padding: 50px 0;">Waiting for events...</div>';
             document.getElementById('agg-result-body').innerHTML = 
-                '<tr><td colspan="3" style="text-align: center; color: #999;">No data yet</td></tr>';
+                '<tr><td colspan="3" style="text-align: center; color: var(--ui-muted-text);">No data yet</td></tr>';
             document.getElementById('agg-changelog').innerHTML = 
-                '<div style="text-align: center; color: #999;">Changelog will appear here...</div>';
+                '<div style="text-align: center; color: var(--ui-muted-text);">Changelog will appear here...</div>';
         }
