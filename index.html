@@ -9,7 +9,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🚀 Flink Table-Stream Duality</h1>
+            <h1>🐿️ Flink Table-Stream Duality</h1>
             <p>Interactive Demo: Understanding the Two Views of Data</p>
         </div>
 
@@ -192,33 +192,27 @@
                     <div style="display: grid; gap: 30px;">
                         <div style="background: #e8f5e9; padding: 25px; border-radius: 15px; border-left: 5px solid #4caf50;">
                             <h3 style="color: #2e7d32; margin-bottom: 15px;">1️⃣ Insert-Only (Append) Stream</h3>
-                            <div class="code-block">
-<span class="comment">// Events only get added, never updated or deleted</span>
+                            <div class="code-block"><span class="comment">// Events only get added, never updated or deleted</span>
 +I[Alice, 100]
 +I[Bob, 50]
-+I[Alice, 200]
-                            </div>
++I[Alice, 200]</div>
                             <p style="color: #666; margin-top: 15px;"><strong>Use Case:</strong> Raw event logs, sensor data, clickstream data</p>
                         </div>
 
                         <div style="background: #fff3e0; padding: 25px; border-radius: 15px; border-left: 5px solid #ff9800;">
                             <h3 style="color: #ef6c00; margin-bottom: 15px;">2️⃣ Retract Stream</h3>
-                            <div class="code-block">
-<span class="comment">// Updates sent as DELETE old + INSERT new</span>
+                            <div class="code-block"><span class="comment">// Updates sent as DELETE old + INSERT new</span>
 +I[Alice, 100]     <span class="comment">// Insert</span>
 -D[Alice, 100]     <span class="comment">// Delete old value</span>
-+I[Alice, 300]     <span class="comment">// Insert new value</span>
-                            </div>
++I[Alice, 300]     <span class="comment">// Insert new value</span></div>
                             <p style="color: #666; margin-top: 15px;"><strong>Use Case:</strong> Aggregations without primary key, COUNT, SUM without GROUP BY key</p>
                         </div>
 
                         <div style="background: #e1f5fe; padding: 25px; border-radius: 15px; border-left: 5px solid #03a9f4;">
                             <h3 style="color: #0277bd; margin-bottom: 15px;">3️⃣ Upsert Stream</h3>
-                            <div class="code-block">
-<span class="comment">// Updates modify in-place using a key</span>
+                            <div class="code-block"><span class="comment">// Updates modify in-place using a key</span>
 +I[Alice, 100]     <span class="comment">// Insert</span>
-+U[Alice, 300]     <span class="comment">// Update (replaces previous)</span>
-                            </div>
++U[Alice, 300]     <span class="comment">// Update (replaces previous)</span></div>
                             <p style="color: #666; margin-top: 15px;"><strong>Use Case:</strong> Aggregations with primary key, database CDC, state updates</p>
                         </div>
                     </div>
@@ -246,13 +240,11 @@
                 <div class="visualization">
                     <div style="background: #f8f9fa; padding: 20px; border-radius: 10px; margin-bottom: 20px;">
                         <h3 style="margin-bottom: 15px;">SQL Query:</h3>
-                        <div class="code-block">
-<span class="keyword">SELECT</span> user,
+                        <div class="code-block"><span class="keyword">SELECT</span> user,
        <span class="function">SUM</span>(amount) <span class="keyword">as</span> total,
        <span class="function">COUNT</span>(*) <span class="keyword">as</span> order_count
 <span class="keyword">FROM</span> orders
-<span class="keyword">GROUP BY</span> user
-                        </div>
+<span class="keyword">GROUP BY</span> user</div>
                     </div>
 
                     <div class="split-view">
@@ -301,8 +293,7 @@
                 <div class="visualization">
                     <div style="margin-bottom: 40px;">
                         <h3 style="color: #667eea; margin-bottom: 20px;">🔄 Stream → Table</h3>
-                        <div class="code-block">
-<span class="comment">// Create a DataStream</span>
+                        <div class="code-block"><span class="comment">// Create a DataStream</span>
 DataStream&lt;Order&gt; orderStream = env.fromElements(
     <span class="keyword">new</span> <span class="function">Order</span>(<span class="string">"Alice"</span>, <span class="string">"Laptop"</span>, 1000),
     <span class="keyword">new</span> <span class="function">Order</span>(<span class="string">"Bob"</span>, <span class="string">"Mouse"</span>, 50)
@@ -315,14 +306,12 @@ Table ordersTable = tableEnv.<span class="function">from</span>(<span class="str
 <span class="comment">// Now you can query with SQL!</span>
 Table result = tableEnv.<span class="function">sqlQuery</span>(
     <span class="string">"SELECT user, SUM(amount) FROM orders GROUP BY user"</span>
-);
-                        </div>
+);</div>
                     </div>
 
                     <div style="margin-bottom: 40px;">
                         <h3 style="color: #667eea; margin-bottom: 20px;">🔄 Table → Stream</h3>
-                        <div class="code-block">
-<span class="comment">// You have a Table from a query</span>
+                        <div class="code-block"><span class="comment">// You have a Table from a query</span>
 Table resultTable = tableEnv.<span class="function">sqlQuery</span>(
     <span class="string">"SELECT user, SUM(amount) as total FROM orders GROUP BY user"</span>
 );
@@ -336,14 +325,12 @@ DataStream&lt;Row&gt; changelogStream = tableEnv.<span class="function">toChange
 <span class="comment">// Now process with DataStream API</span>
 resultStream
     .<span class="function">map</span>(row -> <span class="string">"User: "</span> + row.getField(0))
-    .<span class="function">print</span>();
-                        </div>
+    .<span class="function">print</span>();</div>
                     </div>
 
                     <div style="margin-bottom: 40px;">
                         <h3 style="color: #667eea; margin-bottom: 20px;">🔄 Table API (Fluent)</h3>
-                        <div class="code-block">
-<span class="keyword">import static</span> org.apache.flink.table.api.Expressions.*;
+                        <div class="code-block"><span class="keyword">import static</span> org.apache.flink.table.api.Expressions.*;
 
 <span class="comment">// Table API - no SQL strings!</span>
 Table result = ordersTable
@@ -352,14 +339,12 @@ Table result = ordersTable
         $(<span class="string">"user"</span>),
         $(<span class="string">"amount"</span>).<span class="function">sum</span>().<span class="function">as</span>(<span class="string">"total"</span>),
         $(<span class="string">"user"</span>).<span class="function">count</span>().<span class="function">as</span>(<span class="string">"order_count"</span>)
-    );
-                        </div>
+    );</div>
                     </div>
 
                     <div>
                         <h3 style="color: #667eea; margin-bottom: 20px;">🔄 Mixing Both APIs</h3>
-                        <div class="code-block">
-<span class="comment">// Start with DataStream</span>
+                        <div class="code-block"><span class="comment">// Start with DataStream</span>
 DataStream&lt;Order&gt; stream = env.<span class="function">addSource</span>(<span class="keyword">new</span> <span class="function">OrderSource</span>());
 
 <span class="comment">// Convert to Table and aggregate</span>
@@ -377,8 +362,7 @@ resultStream
     .<span class="function">process</span>(<span class="keyword">new</span> <span class="function">MyProcessFunction</span>())
     .<span class="function">print</span>();
 
-env.<span class="function">execute</span>();
-                        </div>
+env.<span class="function">execute</span>();</div>
                     </div>
 
                     <div class="info-box" style="margin-top: 30px;">

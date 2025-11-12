@@ -1,4 +1,6 @@
         // Navigation
+        const sectionHashes = ['concept', 'stream-to-table', 'table-to-stream', 'stream-types', 'live-aggregation', 'code-examples'];
+        
         function showSection(index) {
             const sections = document.querySelectorAll('.demo-section');
             const buttons = document.querySelectorAll('.nav-btn');
@@ -8,7 +10,28 @@
             
             sections[index].classList.add('active');
             buttons[index].classList.add('active');
+            
+            // Update URL hash
+            window.location.hash = sectionHashes[index];
         }
+        
+        // Handle hash changes
+        function handleHashChange() {
+            const hash = window.location.hash.slice(1); // Remove the #
+            const index = sectionHashes.indexOf(hash);
+            
+            if (index !== -1) {
+                showSection(index);
+            } else if (!hash) {
+                showSection(0); // Default to first section
+            }
+        }
+        
+        // Listen for hash changes
+        window.addEventListener('hashchange', handleHashChange);
+        
+        // Handle initial load
+        window.addEventListener('DOMContentLoaded', handleHashChange);
 
         // Section 1: Stream to Table
         let streamEvents = [

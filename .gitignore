@@ -1,0 +1,13 @@
+# Kiro IDE
+.kiro/
+
+# macOS
+.DS_Store
+
+# Editor directories
+.vscode/
+.idea/
+
+# Logs
+*.log
+.history
