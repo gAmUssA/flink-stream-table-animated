@@ -167,10 +167,10 @@
 
         // Section 1: Stream to Table
         let streamEvents = [
-            { user: 'Alice', product: 'Laptop', amount: 1000, time: 'T1' },
-            { user: 'Bob', product: 'Mouse', amount: 50, time: 'T2' },
-            { user: 'Alice', product: 'Keyboard', amount: 100, time: 'T3' },
-            { user: 'Charlie', product: 'Monitor', amount: 300, time: 'T4' }
+            { user: 'Alice', product: 'Laptop', amount: 1000, time: '10:01:15' },
+            { user: 'Bob', product: 'Mouse', amount: 50, time: '10:01:18' },
+            { user: 'Alice', product: 'Keyboard', amount: 100, time: '10:01:22' },
+            { user: 'Charlie', product: 'Monitor', amount: 300, time: '10:01:25' }
         ];
 
         function streamToTable() {
@@ -182,12 +182,19 @@
             
             streamEvents.forEach((event, index) => {
                 setTimeout(() => {
-                    // Add event to stream
-                    const eventDiv = document.createElement('div');
-                    eventDiv.className = 'event';
-                    eventDiv.style.setProperty('--final-position', `${80 + index * 150}px`);
-                    eventDiv.innerHTML = `{user: "${event.user}", amount: ${event.amount}}`;
-                    streamContainer.appendChild(eventDiv);
+                    // Add Kafka message to consumer view
+                    const msgDiv = document.createElement('div');
+                    msgDiv.className = 'kafka-message';
+                    msgDiv.innerHTML = `
+                        <span class="offset">offset: ${index}</span>
+                        <span class="payload">
+                            {<span class="key">"user"</span>: <span class="value">"${event.user}"</span>, 
+                            <span class="key">"product"</span>: <span class="value">"${event.product}"</span>, 
+                            <span class="key">"amount"</span>: ${event.amount}}
+                        </span>
+                    `;
+                    streamContainer.appendChild(msgDiv);
+                    streamContainer.scrollTop = streamContainer.scrollHeight;
                     
                     // Add row to table
                     setTimeout(() => {
@@ -196,22 +203,18 @@
                         row.innerHTML = `
                             <td>${event.user}</td>
                             <td>${event.product}</td>
-                            <td>${event.amount}</td>
+                            <td>$${event.amount}</td>
                             <td>${event.time}</td>
                         `;
-                        
-                        setTimeout(() => {
-                            row.className = '';
-                        }, 500);
-                    }, 1500);
-                }, index * 2500);
+                    }, 400);
+                }, index * 1000);
             });
         }
 
         function resetStreamToTable() {
-            document.getElementById('stream-events').innerHTML = '';
+            document.getElementById('stream-events').innerHTML = '<div class="kafka-empty">Waiting for messages...</div>';
             document.getElementById('append-table-body').innerHTML = 
-                '<tr><td colspan="4" style="text-align: center; color: #999;">Table is empty - Start animation to see data</td></tr>';
+                '<tr><td colspan="4" style="text-align: center; color: var(--ide-text-muted);">Run to see data flow</td></tr>';
         }
 
         // Section 2: Table to Stream
@@ -400,4 +403,213 @@
                 '<tr><td colspan="3" style="text-align: center; color: var(--ui-muted-text);">No data yet</td></tr>';
             document.getElementById('agg-changelog').innerHTML = 
                 '<div style="text-align: center; color: var(--ui-muted-text);">Changelog will appear here...</div>';
+        }
+
+        // Section 5: IDE Components
+        
+        // Track current active tab
+        let currentCodeTab = 'ddl';
+        
+        // Show code tab and update active states
+        function showCodeTab(tabId) {
+            currentCodeTab = tabId;
+            
+            // Hide all code panels
+            const panels = document.querySelectorAll('[id^="code-panel-"]');
+            panels.forEach(panel => panel.style.display = 'none');
+            
+            // Show selected panel
+            const selectedPanel = document.getElementById(`code-panel-${tabId}`);
+            if (selectedPanel) {
+                selectedPanel.style.display = 'flex';
+            }
+            
+            // Update tab active states
+            const tabs = document.querySelectorAll('.ide-tab');
+            tabs.forEach(tab => tab.classList.remove('active'));
+            
+            // Find and activate the clicked tab
+            tabs.forEach(tab => {
+                if (tab.onclick && tab.onclick.toString().includes(tabId)) {
+                    tab.classList.add('active');
+                }
+            });
+            
+            // Update file tree active states
+            const fileItems = document.querySelectorAll('.file-tree-item');
+            fileItems.forEach(item => item.classList.remove('active'));
+            
+            fileItems.forEach(item => {
+                if (item.onclick && item.onclick.toString().includes(tabId)) {
+                    item.classList.add('active');
+                }
+            });
+            
+            // Update status bar
+            const statusBar = document.querySelector('.ide-statusbar-left .ide-statusbar-item');
+            if (statusBar) {
+                statusBar.textContent = tabId === 'table-api' ? 'Java' : 'SQL';
+            }
+        }
+        
+        // Terminal animations for each SQL file type
+        const terminalAnimations = {
+            'ddl': [
+                { type: 'prompt-command', prompt: 'Flink SQL>', command: ' CREATE TABLE orders (', delay: 0 },
+                { type: 'output', text: '    order_id STRING,', delay: 100 },
+                { type: 'output', text: '    user_id STRING,', delay: 100 },
+                { type: 'output', text: '    amount DECIMAL(10,2),', delay: 100 },
+                { type: 'output', text: '    order_time TIMESTAMP(3)', delay: 100 },
+                { type: 'output', text: ') WITH (\'connector\' = \'kafka\', ...);', delay: 100 },
+                { type: 'success', text: '[INFO] Execute statement succeed.', delay: 600 },
+                { type: 'prompt-command', prompt: 'Flink SQL>', command: ' SHOW TABLES;', delay: 800 },
+                { type: 'output', text: '+------------+', delay: 400 },
+                { type: 'output', text: '| table name |', delay: 100 },
+                { type: 'output', text: '+------------+', delay: 100 },
+                { type: 'data', text: '| orders     |', delay: 300 },
+                { type: 'output', text: '+------------+', delay: 100 },
+                { type: 'success', text: '1 row in set', delay: 400 },
+                { type: 'prompt-command', prompt: 'Flink SQL>', command: ' DESCRIBE orders;', delay: 800 },
+                { type: 'output', text: '+------------+----------------+------+-----+', delay: 400 },
+                { type: 'output', text: '|    name    |           type | null | key |', delay: 100 },
+                { type: 'output', text: '+------------+----------------+------+-----+', delay: 100 },
+                { type: 'data', text: '| order_id   |         STRING | TRUE |     |', delay: 200 },
+                { type: 'data', text: '| user_id    |         STRING | TRUE |     |', delay: 200 },
+                { type: 'data', text: '| amount     | DECIMAL(10, 2) | TRUE |     |', delay: 200 },
+                { type: 'data', text: '| order_time |   TIMESTAMP(3) | TRUE |     |', delay: 200 },
+                { type: 'output', text: '+------------+----------------+------+-----+', delay: 100 },
+                { type: 'success', text: '[INFO] Table created and registered in catalog', delay: 500 },
+                { type: 'cursor', delay: 300 }
+            ],
+            'aggregation': [
+                { type: 'prompt-command', prompt: 'Flink SQL>', command: ' SELECT user_id, SUM(amount) AS total, COUNT(*) AS cnt', delay: 0 },
+                { type: 'output', text: '  FROM orders GROUP BY user_id;', delay: 100 },
+                { type: 'info', text: '[INFO] Submitting SQL query...', delay: 500 },
+                { type: 'info', text: '[INFO] Result retrieval mode: changelog', delay: 400 },
+                { type: 'output', text: '+---------+--------+-----+', delay: 600 },
+                { type: 'output', text: '| user_id |  total | cnt |', delay: 100 },
+                { type: 'output', text: '+---------+--------+-----+', delay: 100 },
+                { type: 'data', text: '|      +I |  Alice |  100 |  1 |', delay: 800 },
+                { type: 'data', text: '|      +I |    Bob |   50 |  1 |', delay: 600 },
+                { type: 'data', text: '|      -U |  Alice |  100 |  1 |  ← retract old', delay: 700 },
+                { type: 'data', text: '|      +U |  Alice |  250 |  2 |  ← update new', delay: 200 },
+                { type: 'data', text: '|      +I |Charlie |  300 |  1 |', delay: 800 },
+                { type: 'data', text: '|      -U |    Bob |   50 |  1 |', delay: 600 },
+                { type: 'data', text: '|      +U |    Bob |  120 |  2 |', delay: 200 },
+                { type: 'output', text: '+---------+--------+-----+', delay: 400 },
+                { type: 'info', text: '[INFO] Continuous query running...', delay: 300 },
+                { type: 'cursor', delay: 300 }
+            ],
+            'window': [
+                { type: 'prompt-command', prompt: 'Flink SQL>', command: ' SELECT window_start, window_end, user_id, SUM(amount)', delay: 0 },
+                { type: 'output', text: '  FROM TABLE(TUMBLE(TABLE orders, DESCRIPTOR(order_time),', delay: 100 },
+                { type: 'output', text: '       INTERVAL \'10\' MINUTES))', delay: 100 },
+                { type: 'output', text: '  GROUP BY window_start, window_end, user_id;', delay: 100 },
+                { type: 'info', text: '[INFO] Submitting windowed aggregation...', delay: 500 },
+                { type: 'info', text: '[INFO] Result retrieval mode: append-only', delay: 400 },
+                { type: 'output', text: '+---------------------+---------------------+---------+-------+', delay: 600 },
+                { type: 'output', text: '|        window_start |          window_end | user_id | total |', delay: 100 },
+                { type: 'output', text: '+---------------------+---------------------+---------+-------+', delay: 100 },
+                { type: 'info', text: '[INFO] Waiting for window to close...', delay: 1000 },
+                { type: 'data', text: '| 2024-01-15 10:00:00 | 2024-01-15 10:10:00 |   Alice |   350 |', delay: 800 },
+                { type: 'data', text: '| 2024-01-15 10:00:00 | 2024-01-15 10:10:00 |     Bob |   120 |', delay: 400 },
+                { type: 'data', text: '| 2024-01-15 10:00:00 | 2024-01-15 10:10:00 | Charlie |   300 |', delay: 400 },
+                { type: 'info', text: '[INFO] Window [10:00, 10:10) closed, emitting results', delay: 600 },
+                { type: 'data', text: '| 2024-01-15 10:10:00 | 2024-01-15 10:20:00 |   Alice |   200 |', delay: 1000 },
+                { type: 'data', text: '| 2024-01-15 10:10:00 | 2024-01-15 10:20:00 |     Bob |    75 |', delay: 400 },
+                { type: 'output', text: '+---------------------+---------------------+---------+-------+', delay: 400 },
+                { type: 'success', text: '[INFO] Window results are append-only (+I only)', delay: 500 },
+                { type: 'cursor', delay: 300 }
+            ],
+            'table-api': [
+                { type: 'prompt-command', prompt: '$', command: ' mvn compile exec:java -Dexec.mainClass="TableApiDemo"', delay: 0 },
+                { type: 'output', text: '[INFO] Scanning for projects...', delay: 400 },
+                { type: 'output', text: '[INFO] Building flink-table-api-demo 1.0.0', delay: 300 },
+                { type: 'output', text: '[INFO] Compiling 1 source file...', delay: 400 },
+                { type: 'success', text: '[INFO] BUILD SUCCESS', delay: 500 },
+                { type: 'info', text: '[INFO] Starting Flink Table API job...', delay: 600 },
+                { type: 'output', text: '', delay: 100 },
+                { type: 'output', text: '+----+---------+--------+-----+', delay: 600 },
+                { type: 'output', text: '| op | user_id |  total | cnt |', delay: 100 },
+                { type: 'output', text: '+----+---------+--------+-----+', delay: 100 },
+                { type: 'data', text: '| +I |   Alice |    100 |   1 |', delay: 800 },
+                { type: 'data', text: '| +I |     Bob |     50 |   1 |', delay: 600 },
+                { type: 'data', text: '| -U |   Alice |    100 |   1 |', delay: 700 },
+                { type: 'data', text: '| +U |   Alice |    250 |   2 |', delay: 200 },
+                { type: 'data', text: '| +I | Charlie |    300 |   1 |', delay: 800 },
+                { type: 'output', text: '+----+---------+--------+-----+', delay: 400 },
+                { type: 'success', text: '[INFO] Table API produces same changelog as SQL', delay: 600 },
+                { type: 'cursor', delay: 300 }
+            ]
+        };
+        
+        // Terminal demo with typing animation
+        let terminalTimeouts = [];
+        
+        function runTerminalDemo() {
+            const terminal = document.getElementById('terminal-output');
+            terminal.innerHTML = '';
+            
+            // Clear any existing timeouts
+            terminalTimeouts.forEach(t => clearTimeout(t));
+            terminalTimeouts = [];
+            
+            // Get animation for current tab
+            const lines = terminalAnimations[currentCodeTab] || terminalAnimations['ddl'];
+            
+            let totalDelay = 0;
+            
+            lines.forEach((line, index) => {
+                totalDelay += line.delay;
+                
+                const timeout = setTimeout(() => {
+                    const lineDiv = document.createElement('div');
+                    lineDiv.className = 'terminal-line';
+                    lineDiv.style.animation = 'fadeInLine 0.2s ease forwards';
+                    
+                    if (line.type === 'prompt-command') {
+                        lineDiv.innerHTML = `<span class="terminal-prompt">${line.prompt}</span><span class="terminal-command">${line.command}</span>`;
+                    } else if (line.type === 'cursor') {
+                        const prompt = currentCodeTab === 'table-api' ? '$' : 'Flink SQL>';
+                        lineDiv.innerHTML = `<span class="terminal-prompt">${prompt}</span><span class="terminal-cursor"></span>`;
+                    } else {
+                        const colorClass = {
+                            'output': 'terminal-output',
+                            'success': 'terminal-success',
+                            'error': 'terminal-error',
+                            'warning': 'terminal-warning',
+                            'info': 'terminal-info',
+                            'data': 'terminal-success'
+                        }[line.type] || 'terminal-output';
+                        
+                        lineDiv.classList.add(colorClass);
+                        lineDiv.textContent = line.text;
+                    }
+                    
+                    terminal.appendChild(lineDiv);
+                    terminal.scrollTop = terminal.scrollHeight;
+                }, totalDelay);
+                
+                terminalTimeouts.push(timeout);
+            });
+        }
+        
+        function resetTerminalDemo() {
+            // Clear all timeouts
+            terminalTimeouts.forEach(t => clearTimeout(t));
+            terminalTimeouts = [];
+            
+            const terminal = document.getElementById('terminal-output');
+            const prompt = currentCodeTab === 'table-api' ? '$' : 'Flink SQL&gt;';
+            const hint = currentCodeTab === 'table-api' 
+                ? 'mvn exec:java to run Table API demo'
+                : 'Click Run Demo to execute ' + currentCodeTab + '.sql';
+            
+            terminal.innerHTML = `
+                <div class="terminal-line">
+                    <span class="terminal-prompt">${prompt}</span>
+                    <span class="terminal-cursor"></span>
+                </div>
+                <div class="terminal-line terminal-info">[INFO] ${hint}</div>
+            `;
         }
