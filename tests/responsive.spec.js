@@ -76,12 +76,12 @@ test.describe('Mobile Layouts (320px - 480px)', () => {
     await page.setViewportSize({ width: 375, height: 667 });
     
     const sections = [
-      { name: '📊 Core Concept', hash: '#concept' },
-      { name: '➡️ Stream to Table', hash: '#stream-to-table' },
-      { name: '⬅️ Table to Stream', hash: '#table-to-stream' },
-      { name: '🔄 Stream Types', hash: '#stream-types' },
-      { name: '📈 Live Aggregation', hash: '#live-aggregation' },
-      { name: '💻 Code Examples', hash: '#code-examples' }
+      { name: /Core Concept/, hash: '#concept' },
+      { name: /Stream.*Table/, hash: '#stream-to-table' },
+      { name: /Table.*Stream/, hash: '#table-to-stream' },
+      { name: /Changelog Types/, hash: '#stream-types' },
+      { name: /Live SQL/, hash: '#live-aggregation' },
+      { name: /Code Examples/, hash: '#code-examples' }
     ];
     
     for (const section of sections) {
@@ -104,7 +104,7 @@ test.describe('Mobile Layouts (320px - 480px)', () => {
     await page.goto('/#stream-to-table');
     
     // Start animation
-    await page.getByRole('button', { name: '▶️ Start Animation' }).click();
+    await page.getByRole('button', { name: /Run/ }).click();
     await page.waitForTimeout(2000);
     
     // Check animation is running
@@ -112,7 +112,7 @@ test.describe('Mobile Layouts (320px - 480px)', () => {
     expect(tableRows).toBeGreaterThan(0);
     
     // Check stream container is visible and scaled
-    const streamContainer = page.locator('.stream-container');
+    const streamContainer = page.locator('.kafka-messages');
     await expect(streamContainer).toBeVisible();
   });
 
@@ -137,7 +137,7 @@ test.describe('Mobile Layouts (320px - 480px)', () => {
     await page.goto('/#stream-to-table');
     
     // Start animation to populate table
-    await page.getByRole('button', { name: '▶️ Start Animation' }).click();
+    await page.getByRole('button', { name: /Run/ }).click();
     await page.waitForTimeout(1500);
     
     const table = page.locator('table').first();
@@ -155,7 +155,7 @@ test.describe('Mobile Layouts (320px - 480px)', () => {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/#code-examples');
     
-    const codeBlock = page.locator('#section-5 .code-block').first();
+    const codeBlock = page.locator('#section-5 .ide-editor').first();
     await expect(codeBlock).toBeVisible();
     
     // Check font size is readable (12-14px)
@@ -369,14 +369,14 @@ test.describe('Desktop Regression Testing (1025px+)', () => {
     await page.setViewportSize({ width: 1280, height: 720 });
     
     // Test navigation
-    await page.getByRole('button', { name: '➡️ Stream to Table' }).click();
+    await page.getByRole('button', { name: /Stream.*Table/ }).click();
     await expect(page).toHaveURL(/#stream-to-table/);
     
     // Wait for section to be active
     await page.waitForSelector('#section-1.active');
     
     // Test animation controls
-    const startButton = page.getByRole('button', { name: '▶️ Start Animation' });
+    const startButton = page.getByRole('button', { name: /Run/ });
     await expect(startButton).toBeVisible();
     await startButton.click();
     await page.waitForTimeout(2000);
@@ -386,7 +386,7 @@ test.describe('Desktop Regression Testing (1025px+)', () => {
     
     // Test reset (section 1 doesn't have a pause button, only start and reset)
     await page.waitForTimeout(500);
-    const resetButton = page.getByRole('button', { name: '🔄 Reset' });
+    const resetButton = page.getByRole('button', { name: 'Reset' });
     await expect(resetButton).toBeVisible();
     await resetButton.click();
     await page.waitForTimeout(500);
@@ -411,12 +411,12 @@ test.describe('Desktop Regression Testing (1025px+)', () => {
     await page.setViewportSize({ width: 1280, height: 720 });
     
     const sections = [
-      { name: '📊 Core Concept', hash: '#concept' },
-      { name: '➡️ Stream to Table', hash: '#stream-to-table' },
-      { name: '⬅️ Table to Stream', hash: '#table-to-stream' },
-      { name: '🔄 Stream Types', hash: '#stream-types' },
-      { name: '📈 Live Aggregation', hash: '#live-aggregation' },
-      { name: '💻 Code Examples', hash: '#code-examples' }
+      { name: /Core Concept/, hash: '#concept' },
+      { name: /Stream.*Table/, hash: '#stream-to-table' },
+      { name: /Table.*Stream/, hash: '#table-to-stream' },
+      { name: /Changelog Types/, hash: '#stream-types' },
+      { name: /Live SQL/, hash: '#live-aggregation' },
+      { name: /Code Examples/, hash: '#code-examples' }
     ];
     
     for (const section of sections) {
@@ -448,7 +448,7 @@ test.describe('Desktop Regression Testing (1025px+)', () => {
     await page.waitForSelector('#section-4.active');
     
     // Start aggregation (button text is just "▶️ Start" not "▶️ Start Aggregation")
-    const startButton = page.getByRole('button', { name: '▶️ Start' });
+    const startButton = page.getByRole('button', { name: /Start/ });
     await expect(startButton).toBeVisible({ timeout: 10000 });
     await startButton.click();
     await page.waitForTimeout(3000);
@@ -476,16 +476,16 @@ test.describe('Desktop Regression Testing (1025px+)', () => {
     await expect(section).toBeVisible();
     
     // Verify code blocks are present (using .code-block class which exists in section 5)
-    const codeBlock = section.locator('.code-block').first();
+    const codeBlock = section.locator('.ide-editor').first();
     await expect(codeBlock).toBeVisible();
     
-    // Check that code blocks have proper styling
-    const padding = await codeBlock.evaluate(el => {
-      return window.getComputedStyle(el).padding;
+    // Check that code blocks have proper styling (IDE editor uses flex layout)
+    const display = await codeBlock.evaluate(el => {
+      return window.getComputedStyle(el).display;
     });
     
-    // Desktop should have padding (at least some padding)
-    expect(padding).not.toBe('0px');
+    // IDE editor should use flex layout
+    expect(display).toBe('flex');
   });
 });
 
@@ -495,11 +495,11 @@ test.describe('Cross-Browser Compatibility', () => {
     await page.goto('/');
     
     // Test basic functionality
-    await page.getByRole('button', { name: '➡️ Stream to Table' }).click();
+    await page.getByRole('button', { name: /Stream.*Table/ }).click();
     await expect(page).toHaveURL(/#stream-to-table/);
     
     // Test animation
-    await page.getByRole('button', { name: '▶️ Start Animation' }).click();
+    await page.getByRole('button', { name: /Run/ }).click();
     await page.waitForTimeout(2000);
     
     const tableRows = await page.locator('#append-table-body tr').count();
@@ -511,7 +511,7 @@ test.describe('Cross-Browser Compatibility', () => {
     await page.goto('/');
     
     // Test interaction on navigation (click works for both touch and mouse)
-    const navButton = page.getByRole('button', { name: '📊 Core Concept' });
+    const navButton = page.getByRole('button', { name: /Core Concept/ });
     await navButton.click();
     
     // Check navigation worked

@@ -101,12 +101,12 @@ test.describe('Dark Theme Functionality', () => {
     
     // Test each section
     const sections = [
-      { name: '📊 Core Concept', hash: '#concept' },
-      { name: '➡️ Stream to Table', hash: '#stream-to-table' },
-      { name: '⬅️ Table to Stream', hash: '#table-to-stream' },
-      { name: '🔄 Stream Types', hash: '#stream-types' },
-      { name: '📈 Live Aggregation', hash: '#live-aggregation' },
-      { name: '💻 Code Examples', hash: '#code-examples' }
+      { name: /Core Concept/, hash: '#concept' },
+      { name: /Stream.*Table/, hash: '#stream-to-table' },
+      { name: /Table.*Stream/, hash: '#table-to-stream' },
+      { name: /Changelog Types/, hash: '#stream-types' },
+      { name: /Live SQL/, hash: '#live-aggregation' },
+      { name: /Code Examples/, hash: '#code-examples' }
     ];
     
     for (const section of sections) {
@@ -141,20 +141,20 @@ test.describe('Dark Theme Functionality', () => {
     await page.goto('/#stream-to-table');
     
     // Test in light mode
-    await page.getByRole('button', { name: '▶️ Start Animation' }).click();
+    await page.getByRole('button', { name: /Run/ }).click();
     await page.waitForTimeout(3000);
     
     let tableRows = await page.locator('#append-table-body tr').count();
     expect(tableRows).toBeGreaterThan(0);
     
     // Reset
-    await page.getByRole('button', { name: '🔄 Reset' }).click();
+    await page.getByRole('button', { name: 'Reset' }).first().click();
     
     // Toggle to dark mode
     await page.getByRole('button', { name: 'Toggle theme' }).click();
     
     // Test animation in dark mode
-    await page.getByRole('button', { name: '▶️ Start Animation' }).click();
+    await page.getByRole('button', { name: /Run/ }).click();
     await page.waitForTimeout(3000);
     
     tableRows = await page.locator('#append-table-body tr').count();
@@ -190,15 +190,15 @@ test.describe('Dark Theme Functionality', () => {
     await page.getByRole('button', { name: 'Toggle theme' }).click();
     
     // Navigate through sections
-    await page.getByRole('button', { name: '➡️ Stream to Table' }).click();
+    await page.getByRole('button', { name: /Stream.*Table/ }).click();
     let theme = await page.evaluate(() => document.documentElement.getAttribute('data-theme'));
     expect(theme).toBe('dark');
     
-    await page.getByRole('button', { name: '⬅️ Table to Stream' }).click();
+    await page.getByRole('button', { name: /Table.*Stream/ }).click();
     theme = await page.evaluate(() => document.documentElement.getAttribute('data-theme'));
     expect(theme).toBe('dark');
     
-    await page.getByRole('button', { name: '🔄 Stream Types' }).click();
+    await page.getByRole('button', { name: /Changelog Types/ }).click();
     theme = await page.evaluate(() => document.documentElement.getAttribute('data-theme'));
     expect(theme).toBe('dark');
   });
