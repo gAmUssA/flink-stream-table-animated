@@ -26,11 +26,11 @@
             --border-primary: #e5e7eb;
             --border-secondary: #f3f4f6;
             
-            /* Accent colors */
-            --accent-primary: #4f46e5;
-            --accent-hover: #4338ca;
-            --accent-gradient-start: #4f46e5;
-            --accent-gradient-end: #7c3aed;
+            /* Accent colors - professional blue */
+            --accent-primary: #0891b2;
+            --accent-hover: #0e7490;
+            --accent-gradient-start: #0891b2;
+            --accent-gradient-end: #06b6d4;
             
             /* Semantic colors - operations */
             --color-insert: #dcfce7;
@@ -77,16 +77,16 @@
             --shadow-lg: 0 2px 8px rgba(0, 0, 0, 0.15);
             
             /* Feature boxes (Core Concept section) */
-            --feature-stream-bg: #e3f2fd;
-            --feature-stream-heading: #1976D2;
-            --feature-table-bg: #f3e5f5;
-            --feature-table-heading: #7B1FA2;
+            --feature-stream-bg: #e0f2fe;
+            --feature-stream-heading: #0369a1;
+            --feature-table-bg: #ecfeff;
+            --feature-table-heading: #0e7490;
             --feature-flexibility-bg: #e8f5e9;
             --feature-flexibility-heading: #2e7d32;
             --feature-unified-bg: #fff3e0;
             --feature-unified-heading: #ef6c00;
-            --feature-interop-bg: #fce4ec;
-            --feature-interop-heading: #c2185b;
+            --feature-interop-bg: #f0f9ff;
+            --feature-interop-heading: #0284c7;
             
             /* Stream type boxes */
             --stream-insert-bg: #e8f5e9;
@@ -109,7 +109,7 @@
             --ui-neutral-bg: #f8f9fa;
             --ui-neutral-text: #666;
             --ui-muted-text: #999;
-            --ui-duality-arrow: #667eea;
+            --ui-duality-arrow: #0891b2;
         }
 
         /* Theme Variables - Dark Mode */
@@ -132,11 +132,11 @@
             --border-primary: #334155;
             --border-secondary: #475569;
             
-            /* Accent colors */
-            --accent-primary: #6366f1;
-            --accent-hover: #818cf8;
-            --accent-gradient-start: #6366f1;
-            --accent-gradient-end: #8b5cf6;
+            /* Accent colors - professional cyan/teal */
+            --accent-primary: #22d3ee;
+            --accent-hover: #67e8f9;
+            --accent-gradient-start: #22d3ee;
+            --accent-gradient-end: #06b6d4;
             
             /* Semantic colors - operations (adjusted for dark mode) */
             --color-insert: #064e3b;
@@ -183,16 +183,16 @@
             --shadow-lg: 0 2px 8px rgba(0, 0, 0, 0.5);
             
             /* Feature boxes (Core Concept section) - adjusted for dark mode */
-            --feature-stream-bg: #1e3a5f;
-            --feature-stream-heading: #60a5fa;
-            --feature-table-bg: #3d2d4a;
-            --feature-table-heading: #c084fc;
+            --feature-stream-bg: #164e63;
+            --feature-stream-heading: #67e8f9;
+            --feature-table-bg: #155e75;
+            --feature-table-heading: #22d3ee;
             --feature-flexibility-bg: #1e4620;
             --feature-flexibility-heading: #4ade80;
             --feature-unified-bg: #4a3410;
             --feature-unified-heading: #fb923c;
-            --feature-interop-bg: #4a1d33;
-            --feature-interop-heading: #f472b6;
+            --feature-interop-bg: #0c4a6e;
+            --feature-interop-heading: #7dd3fc;
             
             /* Stream type boxes - adjusted for dark mode */
             --stream-insert-bg: #1e4620;
@@ -215,7 +215,7 @@
             --ui-neutral-bg: #1e293b;
             --ui-neutral-text: #94a3b8;
             --ui-muted-text: #64748b;
-            --ui-duality-arrow: #818cf8;
+            --ui-duality-arrow: #22d3ee;
         }
 
         body {
