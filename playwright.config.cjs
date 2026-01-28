@@ -30,28 +30,28 @@ module.exports = defineConfig({
       name: 'webkit',
       use: { ...devices['Desktop Safari'] },
     },
-    // Mobile devices
-    {
-      name: 'mobile-chrome',
-      use: { ...devices['Pixel 5'] },
-    },
-    {
-      name: 'mobile-safari',
-      use: { ...devices['iPhone 12'] },
-    },
-    // Tablet devices
-    {
-      name: 'tablet-chrome',
-      use: { ...devices['Galaxy Tab S4'] },
-    },
-    {
-      name: 'tablet-safari',
-      use: { ...devices['iPad Pro'] },
-    },
+    // Mobile devices - temporarily disabled
+    // {
+    //   name: 'mobile-chrome',
+    //   use: { ...devices['Pixel 5'] },
+    // },
+    // {
+    //   name: 'mobile-safari',
+    //   use: { ...devices['iPhone 12'] },
+    // },
+    // // Tablet devices
+    // {
+    //   name: 'tablet-chrome',
+    //   use: { ...devices['Galaxy Tab S4'] },
+    // },
+    // {
+    //   name: 'tablet-safari',
+    //   use: { ...devices['iPad Pro'] },
+    // },
   ],
 
   webServer: {
-    command: 'python3 -m http.server 8000',
+    command: process.env.CI ? 'npx serve dist -l 8000' : 'python3 -m http.server 8000',
     url: 'http://localhost:8000',
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,

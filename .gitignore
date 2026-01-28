@@ -19,3 +19,9 @@ node_modules/
 /test-results/
 /playwright-report/
 /playwright/.cache/
+
+# Build output
+dist/
+
+# Bun
+bun.lockb

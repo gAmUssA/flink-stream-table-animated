@@ -2,12 +2,23 @@
   "name": "flink-table-stream-duality-demo",
   "version": "1.0.0",
   "description": "Interactive demo for Apache Flink's table-stream duality",
+  "type": "module",
   "scripts": {
+    "dev": "bun run --hot src/index.ts",
+    "build": "bun build src/index.ts --outdir=dist --minify && bun run build:html",
+    "build:html": "bun run scripts/build-html.ts",
+    "preview": "bunx serve dist",
+    "typecheck": "tsc --noEmit",
     "test": "playwright test",
     "test:ui": "playwright test --ui",
     "test:headed": "playwright test --headed"
   },
+  "dependencies": {
+    "lit": "^3.1.0"
+  },
   "devDependencies": {
-    "@playwright/test": "^1.40.0"
+    "@playwright/test": "^1.40.0",
+    "@types/bun": "latest",
+    "typescript": "^5.3.0"
   }
 }
