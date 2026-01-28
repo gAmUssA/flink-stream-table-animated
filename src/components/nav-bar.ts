@@ -28,15 +28,18 @@ export class NavBar extends LitElement {
   @property({ type: Number })
   activeIndex = 0;
 
+  private boundHashChange = this.handleHashChange.bind(this);
+
   override connectedCallback(): void {
     super.connectedCallback();
-    this.handleHashChange();
-    window.addEventListener('hashchange', this.handleHashChange.bind(this));
+    window.addEventListener('hashchange', this.boundHashChange);
+    // Defer initial hash check to avoid update-during-update warning
+    requestAnimationFrame(() => this.handleHashChange());
   }
 
   override disconnectedCallback(): void {
     super.disconnectedCallback();
-    window.removeEventListener('hashchange', this.handleHashChange.bind(this));
+    window.removeEventListener('hashchange', this.boundHashChange);
   }
 
   private handleHashChange(): void {
