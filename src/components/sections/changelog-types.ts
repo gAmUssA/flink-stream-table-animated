@@ -1,9 +1,28 @@
 import { LitElement, html, css } from 'lit';
-import { customElement } from 'lit/decorators.js';
+import { customElement, state } from 'lit/decorators.js';
+
+type PanelId = 'insert' | 'retract' | 'upsert' | 'upsert-source';
 
 @customElement('section-changelog-types')
 export class SectionChangelogTypes extends LitElement {
   override createRenderRoot() { return this; }
+
+  @state()
+  private expandedPanels: Set<PanelId> = new Set(['insert', 'retract', 'upsert', 'upsert-source']);
+
+  private togglePanel(panelId: PanelId) {
+    const newSet = new Set(this.expandedPanels);
+    if (newSet.has(panelId)) {
+      newSet.delete(panelId);
+    } else {
+      newSet.add(panelId);
+    }
+    this.expandedPanels = newSet;
+  }
+
+  private isPanelExpanded(panelId: PanelId): boolean {
+    return this.expandedPanels.has(panelId);
+  }
 
   // Styles in theme.css
   private _unused = `
@@ -176,82 +195,140 @@ export class SectionChangelogTypes extends LitElement {
         <div class="stream-types-grid">
           <!-- Insert-Only -->
           <div class="stream-type-card">
-            <div class="stream-type-header">
+            <div class="stream-type-header collapsible-header" @click=${() => this.togglePanel('insert')}>
               <div class="buttons">
                 <span class="window-btn close"></span>
                 <span class="window-btn minimize"></span>
                 <span class="window-btn maximize"></span>
               </div>
               <span class="title">Insert-Only (Append)</span>
+              <span class="collapse-icon ${this.isPanelExpanded('insert') ? 'expanded' : ''}">&rsaquo;</span>
             </div>
-            <div class="stream-type-content">
-              <div class="code-panel">
-                <div class="code-line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> orders</div>
-                <div class="code-line"><span class="keyword">WHERE</span> amount > 100;</div>
+            <div class="collapsible-content ${this.isPanelExpanded('insert') ? 'expanded' : ''}">
+              <div class="collapsible-inner">
+                <div class="stream-type-content">
+                  <div class="code-panel">
+                    <div class="code-line"><span class="keyword">SELECT</span> * <span class="keyword">FROM</span> orders</div>
+                    <div class="code-line"><span class="keyword">WHERE</span> amount > 100;</div>
+                  </div>
+                  <div class="output-panel">
+                    <div class="output-line insert-color">+I[Alice, 150]</div>
+                    <div class="output-line insert-color">+I[Bob, 200]</div>
+                    <div class="output-line insert-color">+I[Alice, 300]</div>
+                  </div>
+                </div>
+                <div class="stream-type-footer footer-insert">
+                  <strong>Use Case:</strong> Filters, projections, simple transforms
+                </div>
               </div>
-              <div class="output-panel">
-                <div class="output-line insert-color">+I[Alice, 150]</div>
-                <div class="output-line insert-color">+I[Bob, 200]</div>
-                <div class="output-line insert-color">+I[Alice, 300]</div>
-              </div>
-            </div>
-            <div class="stream-type-footer footer-insert">
-              <strong>Use Case:</strong> Filters, projections, simple transforms
             </div>
           </div>
 
           <!-- Retract -->
           <div class="stream-type-card">
-            <div class="stream-type-header">
+            <div class="stream-type-header collapsible-header" @click=${() => this.togglePanel('retract')}>
               <div class="buttons">
                 <span class="window-btn close"></span>
                 <span class="window-btn minimize"></span>
                 <span class="window-btn maximize"></span>
               </div>
               <span class="title">Retract Stream</span>
+              <span class="collapse-icon ${this.isPanelExpanded('retract') ? 'expanded' : ''}">&rsaquo;</span>
             </div>
-            <div class="stream-type-content">
-              <div class="code-panel">
-                <div class="code-line"><span class="keyword">SELECT</span> user_id, <span class="function">SUM</span>(amount)</div>
-                <div class="code-line"><span class="keyword">FROM</span> orders</div>
-                <div class="code-line"><span class="keyword">GROUP BY</span> user_id;</div>
+            <div class="collapsible-content ${this.isPanelExpanded('retract') ? 'expanded' : ''}">
+              <div class="collapsible-inner">
+                <div class="stream-type-content">
+                  <div class="code-panel">
+                    <div class="code-line"><span class="keyword">SELECT</span> user_id, <span class="function">SUM</span>(amount)</div>
+                    <div class="code-line"><span class="keyword">FROM</span> orders</div>
+                    <div class="code-line"><span class="keyword">GROUP BY</span> user_id;</div>
+                  </div>
+                  <div class="output-panel">
+                    <div class="output-line insert-color">+I[Alice, 100]</div>
+                    <div class="output-line update-before-color">-U[Alice, 100]</div>
+                    <div class="output-line update-after-color">+U[Alice, 300]</div>
+                  </div>
+                </div>
+                <div class="stream-type-footer footer-retract">
+                  <strong>Use Case:</strong> Aggregations (SUM, COUNT, AVG)
+                </div>
               </div>
-              <div class="output-panel">
-                <div class="output-line insert-color">+I[Alice, 100]</div>
-                <div class="output-line update-before-color">-U[Alice, 100]</div>
-                <div class="output-line update-after-color">+U[Alice, 300]</div>
-              </div>
-            </div>
-            <div class="stream-type-footer footer-retract">
-              <strong>Use Case:</strong> Aggregations (SUM, COUNT, AVG)
             </div>
           </div>
 
           <!-- Upsert -->
           <div class="stream-type-card">
-            <div class="stream-type-header">
+            <div class="stream-type-header collapsible-header" @click=${() => this.togglePanel('upsert')}>
               <div class="buttons">
                 <span class="window-btn close"></span>
                 <span class="window-btn minimize"></span>
                 <span class="window-btn maximize"></span>
               </div>
               <span class="title">Upsert Stream (with Primary Key)</span>
+              <span class="collapse-icon ${this.isPanelExpanded('upsert') ? 'expanded' : ''}">&rsaquo;</span>
             </div>
-            <div class="stream-type-content">
-              <div class="code-panel">
-                <div class="code-line"><span class="keyword">INSERT INTO</span> user_totals</div>
-                <div class="code-line"><span class="keyword">SELECT</span> user_id, <span class="function">SUM</span>(amount)</div>
-                <div class="code-line"><span class="keyword">FROM</span> orders</div>
-                <div class="code-line"><span class="keyword">GROUP BY</span> user_id;</div>
-              </div>
-              <div class="output-panel">
-                <div class="output-line insert-color">+I[Alice, 100]</div>
-                <div class="output-line update-after-color">+U[Alice, 300]</div>
-                <div class="output-line delete-color">-D[Bob, 50]</div>
+            <div class="collapsible-content ${this.isPanelExpanded('upsert') ? 'expanded' : ''}">
+              <div class="collapsible-inner">
+                <div class="stream-type-content">
+                  <div class="code-panel">
+                    <div class="code-line"><span class="keyword">INSERT INTO</span> user_totals</div>
+                    <div class="code-line"><span class="keyword">SELECT</span> user_id, <span class="function">SUM</span>(amount)</div>
+                    <div class="code-line"><span class="keyword">FROM</span> orders</div>
+                    <div class="code-line"><span class="keyword">GROUP BY</span> user_id;</div>
+                  </div>
+                  <div class="output-panel">
+                    <div class="output-line insert-color">+I[Alice, 100]</div>
+                    <div class="output-line update-after-color">+U[Alice, 300]</div>
+                    <div class="output-line delete-color">-D[Bob, 50]</div>
+                  </div>
+                </div>
+                <div class="stream-type-footer footer-upsert">
+                  <strong>Use Case:</strong> Sink with primary key, CDC, upsert-kafka connector
+                </div>
               </div>
             </div>
-            <div class="stream-type-footer footer-upsert">
-              <strong>Use Case:</strong> Sink with primary key, CDC, upsert-kafka connector
+          </div>
+
+          <!-- Upsert Source -->
+          <div class="stream-type-card">
+            <div class="stream-type-header collapsible-header" @click=${() => this.togglePanel('upsert-source')}>
+              <div class="buttons">
+                <span class="window-btn close"></span>
+                <span class="window-btn minimize"></span>
+                <span class="window-btn maximize"></span>
+              </div>
+              <span class="title">Upsert Source (Compacted Topic)</span>
+              <span class="collapse-icon ${this.isPanelExpanded('upsert-source') ? 'expanded' : ''}">&rsaquo;</span>
+            </div>
+            <div class="collapsible-content ${this.isPanelExpanded('upsert-source') ? 'expanded' : ''}">
+              <div class="collapsible-inner">
+                <div class="stream-type-content">
+                  <div class="code-panel">
+                    <div class="code-line"><span class="keyword">CREATE TABLE</span> users (</div>
+                    <div class="code-line">  user_id <span class="function">STRING</span>,</div>
+                    <div class="code-line">  product <span class="function">STRING</span>,</div>
+                    <div class="code-line">  <span class="keyword">PRIMARY KEY</span> (user_id)</div>
+                    <div class="code-line">) <span class="keyword">WITH</span> (</div>
+                    <div class="code-line">  <span class="string">'connector'</span> = <span class="string">'upsert-kafka'</span></div>
+                    <div class="code-line">);</div>
+                  </div>
+                  <div class="output-panel">
+                    <div class="output-line comment-color">-- Kafka messages:</div>
+                    <div class="output-line muted-color">{Alice, Laptop}</div>
+                    <div class="output-line muted-color">{Bob, Mouse}</div>
+                    <div class="output-line muted-color">{Alice, Keyboard}</div>
+                    <div class="output-line muted-color">{Bob, null}</div>
+                    <div class="output-line comment-color">-- Changelog:</div>
+                    <div class="output-line insert-color">+I[Alice, Laptop]</div>
+                    <div class="output-line insert-color">+I[Bob, Mouse]</div>
+                    <div class="output-line update-after-color">+U[Alice, Keyboard]</div>
+                    <div class="output-line delete-color">-D[Bob, null]</div>
+                  </div>
+                </div>
+                <div class="stream-type-footer footer-upsert">
+                  <strong>Use Case:</strong> Compacted Kafka topics as source - same key replaces previous value (+U), tombstones produce deletes (-D)
+                </div>
+              </div>
             </div>
           </div>
         </div>
@@ -259,6 +336,15 @@ export class SectionChangelogTypes extends LitElement {
         <div class="info-box">
           <strong>Automatic Mode Selection:</strong> Flink determines the changelog mode from your query. 
           Sinks with primary keys enable upsert mode; otherwise retract mode is used for aggregations.
+        </div>
+
+        <div class="docs-links">
+          <strong>Learn More:</strong>
+          <div class="docs-links-list">
+            <a href="https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/connectors/table/upsert-kafka/" target="_blank" rel="noopener">Upsert Kafka Connector</a>
+            <a href="https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/table/concepts/dynamic_tables/#table-to-stream-conversion" target="_blank" rel="noopener">Table-to-Stream Conversion</a>
+            <a href="https://nightlies.apache.org/flink/flink-docs-release-2.2/api/java/org/apache/flink/types/RowKind.html" target="_blank" rel="noopener">RowKind API</a>
+          </div>
         </div>
       </div>
     `;

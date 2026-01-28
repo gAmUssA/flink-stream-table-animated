@@ -4,7 +4,7 @@
   "description": "Interactive demo for Apache Flink's table-stream duality",
   "type": "module",
   "scripts": {
-    "dev": "bun run --hot src/index.ts",
+    "dev": "bun --bun run serve-dev.ts",
     "build": "bun build src/index.ts --outdir=dist --minify --production && bun run build:html",
     "build:html": "bun run scripts/build-html.ts",
     "preview": "bunx serve dist",

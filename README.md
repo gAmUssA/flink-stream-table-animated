@@ -146,7 +146,7 @@ The application includes a fully functional dark theme with:
 1. Fork the repository
 2. Create a feature branch
 3. Make your changes
-4. Run tests: `npm test`
+4. Run tests: `bun test`
 5. Submit a pull request
 
 All pull requests must pass automated tests before merging.

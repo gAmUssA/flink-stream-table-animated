@@ -377,6 +377,16 @@ export class SectionCodeExamples extends LitElement {
           <strong>SQL vs Table API:</strong> Both produce identical execution plans and changelog semantics.
           Use SQL for ad-hoc queries and Table API for programmatic pipelines in Java/Scala/Python.
         </div>
+
+        <div class="docs-links">
+          <strong>Learn More:</strong>
+          <div class="docs-links-list">
+            <a href="https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/table/tableApi/" target="_blank" rel="noopener">Table API</a>
+            <a href="https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/table/sql/overview/" target="_blank" rel="noopener">Flink SQL</a>
+            <a href="https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/connectors/table/kafka/" target="_blank" rel="noopener">Kafka Connector</a>
+            <a href="https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/table/sql/queries/window-agg/" target="_blank" rel="noopener">Window Aggregations</a>
+          </div>
+        </div>
       </div>
     `;
   }

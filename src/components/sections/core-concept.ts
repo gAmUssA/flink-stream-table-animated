@@ -272,7 +272,17 @@ export class SectionCoreConcept extends LitElement {
 
         <div class="info-box">
           <strong>Key Insight:</strong> Every SQL query on a dynamic table produces a changelog stream.
-          Aggregations emit updates (-U, +U), while simple projections emit inserts (+I) only.
+          <em>Global</em> aggregations (GROUP BY without windows) emit updates (-U, +U), 
+          while <em>windowed</em> aggregations and simple projections emit inserts (+I) only.
+        </div>
+
+        <div class="docs-links">
+          <strong>Learn More:</strong>
+          <div class="docs-links-list">
+            <a href="https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/table/concepts/dynamic_tables/" target="_blank" rel="noopener">Dynamic Tables</a>
+            <a href="https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/table/concepts/overview/" target="_blank" rel="noopener">Streaming Concepts</a>
+            <a href="https://nightlies.apache.org/flink/flink-docs-release-2.2/docs/dev/table/data_stream_api/" target="_blank" rel="noopener">Changelog Streams</a>
+          </div>
         </div>
 
         <div class="feature-grid">
