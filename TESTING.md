@@ -6,9 +6,19 @@ This document provides comprehensive information about the automated testing set
 
 ## Test Suite Summary
 
+| Test Suite | File | Tests |
+|------------|------|-------|
+| Theme Functionality | `tests/theme.spec.cjs` | 10 |
+| Presentation Mode | `tests/presentation.spec.cjs` | 52 |
+| Responsive Design | `tests/responsive.spec.cjs` | 41 |
+
+**Total Tests**: ~103
+
+---
+
 ### Dark Theme Functionality Tests
 
-**Location**: `tests/theme.spec.js`
+**Location**: `tests/theme.spec.cjs`
 
 **Total Tests**: 10
 
@@ -70,19 +80,19 @@ Tests run automatically on GitHub Actions for:
 
 ## Test Configuration
 
-### Playwright Configuration (`playwright.config.js`)
+### Playwright Configuration (`playwright.config.cjs`)
 
 ```javascript
 {
   testDir: './tests',
-  baseURL: 'http://localhost:8000',
+  baseURL: 'http://localhost:3000',
   fullyParallel: true,
   retries: 2 (in CI), 0 (locally),
   workers: 1 (in CI), auto (locally),
   browsers: ['chromium', 'firefox', 'webkit'],
   webServer: {
-    command: 'python3 -m http.server 8000',
-    url: 'http://localhost:8000'
+    command: 'npx serve dist -l 3000',
+    url: 'http://localhost:3000'
   }
 }
 ```
@@ -296,7 +306,7 @@ Tests run automatically on GitHub Actions for:
 **Solution**: Run `npx playwright install`
 
 **Issue**: Port already in use
-**Solution**: Kill process on port 8000 or change port in config
+**Solution**: Kill process on port 3000 or change port in config
 
 **Issue**: localStorage not persisting
 **Solution**: Check browser privacy settings
@@ -311,6 +321,48 @@ Tests run automatically on GitHub Actions for:
 6. **Use appropriate waits**: Wait for animations and async operations
 7. **Check CI before merging**: Ensure all tests pass in CI
 
+## Presentation Mode Tests
+
+**Location**: `tests/presentation.spec.cjs`
+
+**Total Tests**: 52
+
+**Coverage Areas**:
+
+1. ✅ Presentation toggle enable/disable
+2. ✅ localStorage persistence
+3. ✅ Keyboard navigation (Arrow keys, Space, PageUp/Down, Escape)
+4. ✅ Slide controls visibility and progress indicator
+5. ✅ Auto-hide controls after 3 seconds
+6. ✅ Dark mode auto-switch on enter
+7. ✅ Theme restoration on exit
+8. ✅ Premium slide transitions
+9. ✅ IDE toolbar controls (Run/Pause/Reset)
+10. ✅ Fullscreen mode integration
+11. ✅ Glassmorphism button styling
+12. ✅ Accessibility (ARIA labels, keyboard nav)
+13. ✅ Reduced motion fallback
+14. ✅ Multiple viewport sizes (1920x1080, 1280x720)
+
+---
+
+## Responsive Design Tests
+
+**Location**: `tests/responsive.spec.cjs`
+
+**Total Tests**: 41
+
+**Coverage Areas**:
+
+1. ✅ Desktop viewport layouts
+2. ✅ Tablet viewport layouts
+3. ✅ Mobile viewport layouts
+4. ✅ Navigation responsiveness
+5. ✅ Content visibility across breakpoints
+6. ✅ Touch-friendly interactions
+
+---
+
 ## Future Enhancements
 
 Potential areas for additional testing:
@@ -318,8 +370,6 @@ Potential areas for additional testing:
 - [ ] Visual regression testing with screenshots
 - [ ] Performance testing (Lighthouse)
 - [ ] Accessibility testing (axe-core)
-- [ ] Cross-browser compatibility testing
-- [ ] Mobile responsive testing
 - [ ] Animation timing tests
 - [ ] Error handling tests
 - [ ] Network failure scenarios

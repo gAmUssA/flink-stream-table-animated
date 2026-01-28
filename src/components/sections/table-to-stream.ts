@@ -156,31 +156,57 @@ export class SectionTableToStream extends LitElement {
   @state() private changelog: ChangelogItem[] = [];
   @state() private rowAnimations: Map<string, string> = new Map();
   @state() private isRunning = false;
+  @state() private isPaused = false;
   private timeouts: number[] = [];
+  private currentStateIndex = 0;
 
   private runDemo(): void {
-    if (this.isRunning) return;
+    if (this.isRunning && !this.isPaused) return;
+    
+    if (this.isPaused) {
+      this.isPaused = false;
+      this.continueDemo();
+      return;
+    }
+    
     this.isRunning = true;
+    this.isPaused = false;
     this.tableData = new Map();
     this.changelog = [];
     this.rowAnimations = new Map();
+    this.currentStateIndex = 0;
+    this.continueDemo();
+  }
 
-    tableStates.forEach((state, index) => {
+  private continueDemo(): void {
+    const remainingStates = tableStates.slice(this.currentStateIndex);
+    
+    remainingStates.forEach((state, index) => {
+      const actualIndex = this.currentStateIndex + index;
       const timeout = window.setTimeout(() => {
+        if (this.isPaused) return;
+        
+        this.currentStateIndex = actualIndex + 1;
+        
         if (state.op === 'INSERT') {
           this.tableData = new Map(this.tableData).set(state.user, { total: state.total, count: state.count });
           this.changelog = [...this.changelog, { type: 'insert', data: `[${state.user}, ${state.total}, ${state.count}]` }];
           this.rowAnimations = new Map(this.rowAnimations).set(state.user, 'row-insert');
-          setTimeout(() => { this.rowAnimations = new Map(this.rowAnimations).set(state.user, ''); }, 500);
+          setTimeout(() => { 
+            if (!this.isPaused) this.rowAnimations = new Map(this.rowAnimations).set(state.user, ''); 
+          }, 500);
         } else {
           const old = this.tableData.get(state.user);
           if (old) {
             this.changelog = [...this.changelog, { type: 'update-before', data: `[${state.user}, ${old.total}, ${old.count}]` }];
             this.rowAnimations = new Map(this.rowAnimations).set(state.user, 'row-update');
             setTimeout(() => {
+              if (this.isPaused) return;
               this.tableData = new Map(this.tableData).set(state.user, { total: state.total, count: state.count });
               this.changelog = [...this.changelog, { type: 'update-after', data: `[${state.user}, ${state.total}, ${state.count}]` }];
-              setTimeout(() => { this.rowAnimations = new Map(this.rowAnimations).set(state.user, ''); }, 500);
+              setTimeout(() => { 
+                if (!this.isPaused) this.rowAnimations = new Map(this.rowAnimations).set(state.user, ''); 
+              }, 500);
             }, 300);
           }
         }
@@ -188,8 +214,17 @@ export class SectionTableToStream extends LitElement {
       this.timeouts.push(timeout);
     });
 
-    const finalTimeout = window.setTimeout(() => { this.isRunning = false; }, tableStates.length * 2000 + 500);
+    const finalTimeout = window.setTimeout(() => { 
+      if (!this.isPaused) this.isRunning = false; 
+    }, remainingStates.length * 2000 + 500);
     this.timeouts.push(finalTimeout);
+  }
+
+  private pauseDemo(): void {
+    if (!this.isRunning || this.isPaused) return;
+    this.isPaused = true;
+    this.timeouts.forEach(t => clearTimeout(t));
+    this.timeouts = [];
   }
 
   private reset(): void {
@@ -199,6 +234,8 @@ export class SectionTableToStream extends LitElement {
     this.changelog = [];
     this.rowAnimations = new Map();
     this.isRunning = false;
+    this.isPaused = false;
+    this.currentStateIndex = 0;
   }
 
   override disconnectedCallback(): void {
@@ -211,28 +248,69 @@ export class SectionTableToStream extends LitElement {
       <h2 class="section-title">Aggregations &amp; Changelog Output</h2>
       <div class="description">SQL aggregations produce updating results. Each update emits changelog events that downstream systems can consume.</div>
 
-      <div class="controls">
-        <button class="btn btn-primary" @click=${this.runDemo} ?disabled=${this.isRunning}>▶ Run</button>
-        <button class="btn btn-secondary" @click=${this.reset}>Reset</button>
-      </div>
-
       <div class="visualization">
-        <ide-window title="aggregation.sql">
-          <div class="ide-editor">
-            <div class="ide-line-numbers">
-              <div class="ide-line-number">1</div>
-              <div class="ide-line-number highlighted">2</div>
-              <div class="ide-line-number highlighted">3</div>
-              <div class="ide-line-number highlighted">4</div>
+        <!-- SQL Editor with IDE Toolbar -->
+        <div class="ide-window">
+          <div class="ide-titlebar">
+            <div class="ide-titlebar-buttons">
+              <span class="ide-titlebar-btn close"></span>
+              <span class="ide-titlebar-btn minimize"></span>
+              <span class="ide-titlebar-btn maximize"></span>
             </div>
-            <div class="ide-code-content">
-              <div class="ide-code-line"><span class="comment">-- Aggregation produces changelog with updates</span></div>
-              <div class="ide-code-line highlighted"><span class="keyword">SELECT</span> user_id, <span class="function">SUM</span>(amount) <span class="keyword">AS</span> total, <span class="function">COUNT</span>(*) <span class="keyword">AS</span> cnt</div>
-              <div class="ide-code-line highlighted"><span class="keyword">FROM</span> orders</div>
-              <div class="ide-code-line highlighted"><span class="keyword">GROUP BY</span> user_id;</div>
+            <span class="ide-titlebar-title">aggregation.sql</span>
+          </div>
+          <!-- IDE Toolbar with Run/Pause/Reset buttons -->
+          <div class="ide-toolbar">
+            <div class="ide-toolbar-left">
+              <button 
+                class="ide-toolbar-btn run ${this.isRunning && !this.isPaused ? 'disabled' : ''}" 
+                @click=${this.runDemo}
+                title="${this.isPaused ? 'Resume' : 'Run Query'}"
+                ?disabled=${this.isRunning && !this.isPaused}
+              >
+                <span class="ide-toolbar-icon">▶</span>
+              </button>
+              <button 
+                class="ide-toolbar-btn pause ${!this.isRunning || this.isPaused ? 'disabled' : ''}" 
+                @click=${this.pauseDemo}
+                title="Pause"
+                ?disabled=${!this.isRunning || this.isPaused}
+              >
+                <span class="ide-toolbar-icon">⏸</span>
+              </button>
+              <button 
+                class="ide-toolbar-btn stop" 
+                @click=${this.reset}
+                title="Reset"
+              >
+                <span class="ide-toolbar-icon">↻</span>
+              </button>
+              <span class="ide-toolbar-separator"></span>
+              <span class="ide-toolbar-label">aggregation.sql</span>
+            </div>
+            <div class="ide-toolbar-right">
+              <span class="ide-toolbar-status ${this.isRunning ? (this.isPaused ? 'paused' : 'running') : 'ready'}">
+                ${this.isRunning ? (this.isPaused ? '⏸ Paused' : '● Running') : '○ Ready'}
+              </span>
             </div>
           </div>
-        </ide-window>
+          <div class="ide-content">
+            <div class="ide-editor">
+              <div class="ide-line-numbers">
+                <div class="ide-line-number">1</div>
+                <div class="ide-line-number highlighted">2</div>
+                <div class="ide-line-number highlighted">3</div>
+                <div class="ide-line-number highlighted">4</div>
+              </div>
+              <div class="ide-code-content">
+                <div class="ide-code-line"><span class="comment">-- Aggregation produces changelog with updates</span></div>
+                <div class="ide-code-line highlighted"><span class="keyword">SELECT</span> user_id, <span class="function">SUM</span>(amount) <span class="keyword">AS</span> total, <span class="function">COUNT</span>(*) <span class="keyword">AS</span> cnt</div>
+                <div class="ide-code-line highlighted"><span class="keyword">FROM</span> orders</div>
+                <div class="ide-code-line highlighted"><span class="keyword">GROUP BY</span> user_id;</div>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <div class="split-view">
           <div>

@@ -1,4 +1,5 @@
 import './styles/theme.css';
+import './styles/presentation.css';
 import './components/app-shell.js';
 
 // Initialize the app

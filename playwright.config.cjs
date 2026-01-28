@@ -12,7 +12,7 @@ module.exports = defineConfig({
   workers: process.env.CI ? 1 : undefined,
   reporter: 'html',
   use: {
-    baseURL: 'http://localhost:8000',
+    baseURL: 'http://localhost:3000',
     trace: 'on-first-retry',
     screenshot: 'only-on-failure',
   },
@@ -51,8 +51,8 @@ module.exports = defineConfig({
   ],
 
   webServer: {
-    command: process.env.CI ? 'npx serve dist -l 8000' : 'python3 -m http.server 8000',
-    url: 'http://localhost:8000',
+    command: 'npx serve dist -l 3000',
+    url: 'http://localhost:3000',
     reuseExistingServer: !process.env.CI,
     timeout: 120 * 1000,
   },

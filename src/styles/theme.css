@@ -130,6 +130,46 @@
     --ide-outer-border: #d1d5db;
 }
 
+/* ============================================
+   PRESENTATION MODE VARIABLES
+   ============================================ */
+
+[data-presentation="true"] {
+    /* Typography scale for projection */
+    --pres-font-size-body: 1.75rem;      /* ~28px */
+    --pres-font-size-heading: 3rem;       /* ~48px */
+    --pres-font-size-subheading: 2rem;    /* ~32px */
+    --pres-font-size-code: 1.25rem;       /* ~20px */
+    
+    /* Primary palette - Indigo + Orange for energy */
+    --pres-primary: #4F46E5;
+    --pres-secondary: #818CF8;
+    --pres-cta: #F97316;
+    --pres-bg: #0a0a0a;
+    --pres-bg-section: #141414;
+    --pres-text: #ffffff;
+    --pres-text-muted: #a1a1aa;
+    
+    /* Parallax layer colors - depth perception */
+    --pres-layer-bg: #050510;
+    --pres-layer-mid: #0f0f1a;
+    --pres-layer-fg: #1a1a2e;
+    
+    /* Parallax speed variables */
+    --parallax-speed-bg: 0.3;
+    --parallax-speed-mid: 0.6;
+    --parallax-speed-fg: 1;
+    
+    /* Section transitions */
+    --pres-section-height: 100vh;
+    --pres-transition-duration: 600ms;
+    --pres-reveal-easing: cubic-bezier(0.4, 0, 0.2, 1);
+    
+    /* Slide controls */
+    --pres-controls-size: 48px;
+    --pres-progress-font-size: 1.25rem;
+}
+
 /* Theme Variables - Dark Mode */
 [data-theme="dark"] {
     /* Background colors */

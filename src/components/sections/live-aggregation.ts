@@ -176,17 +176,37 @@ export class SectionLiveAggregation extends LitElement {
   @state() private aggData: Map<string, AggRow> = new Map();
   @state() private rowAnimations: Map<string, string> = new Map();
   @state() private isRunning = false;
+  @state() private isPaused = false;
   private timeouts: number[] = [];
+  private currentEventIndex = 0;
 
   private runDemo(): void {
-    if (this.isRunning) return;
+    if (this.isRunning && !this.isPaused) return;
+    
+    if (this.isPaused) {
+      this.isPaused = false;
+      this.continueDemo();
+      return;
+    }
+    
     this.isRunning = true;
+    this.isPaused = false;
     this.events = [];
     this.aggData = new Map();
     this.rowAnimations = new Map();
+    this.currentEventIndex = 0;
+    this.continueDemo();
+  }
 
-    demoEvents.forEach((evt, index) => {
+  private continueDemo(): void {
+    const remainingEvents = demoEvents.slice(this.currentEventIndex);
+    
+    remainingEvents.forEach((evt, index) => {
+      const actualIndex = this.currentEventIndex + index;
       const timeout = window.setTimeout(() => {
+        if (this.isPaused) return;
+        
+        this.currentEventIndex = actualIndex + 1;
         this.events = [...this.events, evt];
         
         const existing = this.aggData.get(evt.user);
@@ -207,14 +227,23 @@ export class SectionLiveAggregation extends LitElement {
         }
         
         setTimeout(() => {
-          this.rowAnimations = new Map(this.rowAnimations).set(evt.user, '');
+          if (!this.isPaused) this.rowAnimations = new Map(this.rowAnimations).set(evt.user, '');
         }, 500);
       }, index * 1200);
       this.timeouts.push(timeout);
     });
 
-    const finalTimeout = window.setTimeout(() => { this.isRunning = false; }, demoEvents.length * 1200 + 500);
+    const finalTimeout = window.setTimeout(() => { 
+      if (!this.isPaused) this.isRunning = false; 
+    }, remainingEvents.length * 1200 + 500);
     this.timeouts.push(finalTimeout);
+  }
+
+  private pauseDemo(): void {
+    if (!this.isRunning || this.isPaused) return;
+    this.isPaused = true;
+    this.timeouts.forEach(t => clearTimeout(t));
+    this.timeouts = [];
   }
 
   private reset(): void {
@@ -224,6 +253,8 @@ export class SectionLiveAggregation extends LitElement {
     this.aggData = new Map();
     this.rowAnimations = new Map();
     this.isRunning = false;
+    this.isPaused = false;
+    this.currentEventIndex = 0;
   }
 
   override disconnectedCallback(): void {
@@ -238,25 +269,66 @@ export class SectionLiveAggregation extends LitElement {
         Watch a continuous SQL query update in real-time as new events arrive.
       </div>
 
-      <div class="controls">
-        <button class="btn btn-primary" @click=${this.runDemo} ?disabled=${this.isRunning}>▶ Start</button>
-        <button class="btn btn-secondary" @click=${this.reset}>Reset</button>
-      </div>
-
       <div class="visualization">
-        <ide-window title="live_aggregation.sql">
-          <div class="ide-editor">
-            <div class="ide-line-numbers">
-              ${[1,2,3,4].map(n => html`<div class="ide-line-number">${n}</div>`)}
+        <!-- SQL Editor with IDE Toolbar -->
+        <div class="ide-window">
+          <div class="ide-titlebar">
+            <div class="ide-titlebar-buttons">
+              <span class="ide-titlebar-btn close"></span>
+              <span class="ide-titlebar-btn minimize"></span>
+              <span class="ide-titlebar-btn maximize"></span>
             </div>
-            <div class="ide-code-content">
-              <div class="ide-code-line"><span class="comment">-- Continuous aggregation query</span></div>
-              <div class="ide-code-line"><span class="keyword">SELECT</span> user_id, <span class="function">SUM</span>(amount) <span class="keyword">AS</span> total, <span class="function">COUNT</span>(*) <span class="keyword">AS</span> cnt</div>
-              <div class="ide-code-line"><span class="keyword">FROM</span> orders</div>
-              <div class="ide-code-line"><span class="keyword">GROUP BY</span> user_id;</div>
+            <span class="ide-titlebar-title">live_aggregation.sql</span>
+          </div>
+          <!-- IDE Toolbar with Run/Pause/Reset buttons -->
+          <div class="ide-toolbar">
+            <div class="ide-toolbar-left">
+              <button 
+                class="ide-toolbar-btn run ${this.isRunning && !this.isPaused ? 'disabled' : ''}" 
+                @click=${this.runDemo}
+                title="${this.isPaused ? 'Resume' : 'Start Query'}"
+                ?disabled=${this.isRunning && !this.isPaused}
+              >
+                <span class="ide-toolbar-icon">▶</span>
+              </button>
+              <button 
+                class="ide-toolbar-btn pause ${!this.isRunning || this.isPaused ? 'disabled' : ''}" 
+                @click=${this.pauseDemo}
+                title="Pause"
+                ?disabled=${!this.isRunning || this.isPaused}
+              >
+                <span class="ide-toolbar-icon">⏸</span>
+              </button>
+              <button 
+                class="ide-toolbar-btn stop" 
+                @click=${this.reset}
+                title="Reset"
+              >
+                <span class="ide-toolbar-icon">↻</span>
+              </button>
+              <span class="ide-toolbar-separator"></span>
+              <span class="ide-toolbar-label">live_aggregation.sql</span>
+            </div>
+            <div class="ide-toolbar-right">
+              <span class="ide-toolbar-status ${this.isRunning ? (this.isPaused ? 'paused' : 'running') : 'ready'}">
+                ${this.isRunning ? (this.isPaused ? '⏸ Paused' : '● Running') : '○ Ready'}
+              </span>
             </div>
           </div>
-        </ide-window>
+          <div class="ide-content">
+            <div class="ide-editor">
+              <div class="ide-line-numbers">
+                ${[1,2,3,4].map(n => html`<div class="ide-line-number">${n}</div>`)}
+              </div>
+              <div class="ide-code-content">
+                <div class="ide-code-line"><span class="comment">-- Continuous aggregation query</span></div>
+                <div class="ide-code-line"><span class="keyword">SELECT</span> user_id, <span class="function">SUM</span>(amount) <span class="keyword">AS</span> total, <span class="function">COUNT</span>(*) <span class="keyword">AS</span> cnt</div>
+                <div class="ide-code-line"><span class="keyword">FROM</span> orders</div>
+                <div class="ide-code-line"><span class="keyword">GROUP BY</span> user_id;</div>
+              </div>
+            </div>
+          </div>
+        </div>
 
         <div class="split-view">
           <div>

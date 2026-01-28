@@ -268,19 +268,43 @@ export class SectionStreamToTable extends LitElement {
   @state()
   private isRunning = false;
 
+  @state()
+  private isPaused = false;
+
   private timeouts: number[] = [];
+  private currentEventIndex = 0;
 
   private runDemo(): void {
-    if (this.isRunning) return;
+    if (this.isRunning && !this.isPaused) return;
+    
+    if (this.isPaused) {
+      // Resume from paused state
+      this.isPaused = false;
+      this.continueDemo();
+      return;
+    }
+    
     this.isRunning = true;
+    this.isPaused = false;
     this.messages = [];
     this.tableRows = [];
+    this.currentEventIndex = 0;
+    this.continueDemo();
+  }
 
-    streamEvents.forEach((event, index) => {
+  private continueDemo(): void {
+    const remainingEvents = streamEvents.slice(this.currentEventIndex);
+    
+    remainingEvents.forEach((event, index) => {
+      const actualIndex = this.currentEventIndex + index;
       const timeout = window.setTimeout(() => {
-        this.messages = [...this.messages, { offset: index, event }];
+        if (this.isPaused) return;
+        
+        this.messages = [...this.messages, { offset: actualIndex, event }];
+        this.currentEventIndex = actualIndex + 1;
         
         const rowTimeout = window.setTimeout(() => {
+          if (this.isPaused) return;
           this.tableRows = [...this.tableRows, event];
         }, 400);
         this.timeouts.push(rowTimeout);
@@ -289,9 +313,18 @@ export class SectionStreamToTable extends LitElement {
     });
 
     const finalTimeout = window.setTimeout(() => {
-      this.isRunning = false;
-    }, streamEvents.length * 1000 + 500);
+      if (!this.isPaused) {
+        this.isRunning = false;
+      }
+    }, remainingEvents.length * 1000 + 500);
     this.timeouts.push(finalTimeout);
+  }
+
+  private pauseDemo(): void {
+    if (!this.isRunning || this.isPaused) return;
+    this.isPaused = true;
+    this.timeouts.forEach(t => clearTimeout(t));
+    this.timeouts = [];
   }
 
   private reset(): void {
@@ -300,6 +333,8 @@ export class SectionStreamToTable extends LitElement {
     this.messages = [];
     this.tableRows = [];
     this.isRunning = false;
+    this.isPaused = false;
+    this.currentEventIndex = 0;
   }
 
   override disconnectedCallback(): void {
@@ -312,11 +347,6 @@ export class SectionStreamToTable extends LitElement {
       <h2 class="section-title">Creating Dynamic Tables</h2>
       <div class="description">
         Define a table from a streaming source using SQL DDL. Each incoming event becomes a row in the dynamic table.
-      </div>
-
-      <div class="controls">
-        <button class="btn btn-primary" @click=${this.runDemo} ?disabled=${this.isRunning}>▶ Run</button>
-        <button class="btn btn-secondary" @click=${this.reset}>Reset</button>
       </div>
 
       <div class="visualization">
@@ -340,8 +370,53 @@ export class SectionStreamToTable extends LitElement {
 
         <div class="conversion-arrow">↓</div>
 
-        <ide-window title="kafka-console-consumer --topic orders">
-          <div class="kafka-messages">
+        <!-- Kafka Console with IDE Toolbar -->
+        <div class="ide-window">
+          <div class="ide-titlebar">
+            <div class="ide-titlebar-buttons">
+              <span class="ide-titlebar-btn close"></span>
+              <span class="ide-titlebar-btn minimize"></span>
+              <span class="ide-titlebar-btn maximize"></span>
+            </div>
+            <span class="ide-titlebar-title">kafka-console-consumer --topic orders</span>
+          </div>
+          <!-- IDE Toolbar with Run/Pause/Reset buttons -->
+          <div class="ide-toolbar">
+            <div class="ide-toolbar-left">
+              <button 
+                class="ide-toolbar-btn run ${this.isRunning && !this.isPaused ? 'disabled' : ''}" 
+                @click=${this.runDemo}
+                title="${this.isPaused ? 'Resume' : 'Run Demo'}"
+                ?disabled=${this.isRunning && !this.isPaused}
+              >
+                <span class="ide-toolbar-icon">▶</span>
+              </button>
+              <button 
+                class="ide-toolbar-btn pause ${!this.isRunning || this.isPaused ? 'disabled' : ''}" 
+                @click=${this.pauseDemo}
+                title="Pause"
+                ?disabled=${!this.isRunning || this.isPaused}
+              >
+                <span class="ide-toolbar-icon">⏸</span>
+              </button>
+              <button 
+                class="ide-toolbar-btn stop" 
+                @click=${this.reset}
+                title="Reset"
+              >
+                <span class="ide-toolbar-icon">↻</span>
+              </button>
+              <span class="ide-toolbar-separator"></span>
+              <span class="ide-toolbar-label">Stream Demo</span>
+            </div>
+            <div class="ide-toolbar-right">
+              <span class="ide-toolbar-status ${this.isRunning ? (this.isPaused ? 'paused' : 'running') : 'ready'}">
+                ${this.isRunning ? (this.isPaused ? '⏸ Paused' : '● Running') : '○ Ready'}
+              </span>
+            </div>
+          </div>
+          <div class="ide-content">
+            <div class="kafka-messages">
             ${this.messages.length === 0 
               ? html`<div class="kafka-empty">Waiting for messages...</div>`
               : this.messages.map(m => html`
@@ -355,8 +430,9 @@ export class SectionStreamToTable extends LitElement {
                   </div>
                 `)
             }
+            </div>
           </div>
-        </ide-window>
+        </div>
 
         <div class="conversion-arrow">↓</div>
 
