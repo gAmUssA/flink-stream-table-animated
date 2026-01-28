@@ -1,5 +1,12 @@
 # 🐿️ Flink Table-Stream Duality Interactive Demo
 
+[![Deploy](https://github.com/gAmUssA/flink-stream-table-animated/actions/workflows/deploy.yml/badge.svg)](https://github.com/gAmUssA/flink-stream-table-animated/actions/workflows/deploy.yml)
+[![Playwright Tests](https://github.com/gAmUssA/flink-stream-table-animated/actions/workflows/playwright-tests.yml/badge.svg)](https://github.com/gAmUssA/flink-stream-table-animated/actions/workflows/playwright-tests.yml)
+[![Lit](https://img.shields.io/badge/Lit-3.1.0-324FFF?logo=lit&logoColor=white)](https://lit.dev/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.3.0-3178C6?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![Bun](https://img.shields.io/badge/Bun-latest-FBF0DF?logo=bun&logoColor=black)](https://bun.sh/)
+[![Playwright](https://img.shields.io/badge/Playwright-1.40.0-45BA4B?logo=playwright&logoColor=white)](https://playwright.dev/)
+
 An interactive educational demo explaining Apache Flink's table-stream duality concept. This application visualizes how streams and tables are two views of the same data.
 
 ## Features
@@ -14,25 +21,39 @@ An interactive educational demo explaining Apache Flink's table-stream duality c
 
 ## Tech Stack
 
-- **Frontend**: Vanilla JavaScript (ES6+), HTML5, CSS3
-- **No build system**: Static files served directly
-- **No frameworks**: Pure DOM manipulation
+- **Frontend**: [Lit](https://lit.dev/) web components (v3.1.0)
+- **Language**: TypeScript (v5.3.0)
+- **Runtime/Bundler**: [Bun](https://bun.sh/)
+- **Styling**: CSS custom properties for theming, responsive design
 - **Deployment**: GitHub Pages via GitHub Actions
 - **Testing**: Playwright for end-to-end tests
 
 ## Local Development
 
+### Prerequisites
+
+- [Bun](https://bun.sh/) (latest)
+
+### Install Dependencies
+
+```bash
+bun install
+```
+
 ### Serve the Application
 
 ```bash
-# Using Python
-python3 -m http.server 8000
+# Development server with hot reload
+bun run dev
 
-# Or using npx
-npx serve .
+# Build for production
+bun run build
+
+# Preview production build
+bun run preview
 ```
 
-Then open http://localhost:8000 in your browser.
+Then open http://localhost:3000 in your browser.
 
 ## Testing
 
@@ -42,17 +63,20 @@ This project includes comprehensive Playwright tests for all functionality, incl
 
 ```bash
 # Install dependencies
-npm install
-npx playwright install
+bun install
+bunx playwright install
 
 # Run all tests
-npm test
+bun test
 
 # Run tests in UI mode
-npm run test:ui
+bun run test:ui
+
+# Run tests in headed mode
+bun run test:headed
 
 # View test report
-npx playwright show-report
+bunx playwright show-report
 ```
 
 See [tests/README.md](tests/README.md) for detailed testing documentation.
@@ -81,17 +105,34 @@ The application includes a fully functional dark theme with:
 
 ```
 .
-├── index.html              # Main HTML with all 6 demo sections
-├── script.js               # JavaScript logic (navigation, animations, theme)
-├── styles.css              # Complete styling (layout, animations, themes)
+├── src/
+│   ├── index.html          # HTML shell template
+│   ├── index.ts            # Application entry point
+│   ├── components/         # Lit web components
+│   │   ├── app-shell.ts    # Main application shell
+│   │   ├── nav-bar.ts      # Navigation component
+│   │   ├── theme-toggle.ts # Dark/light theme toggle
+│   │   ├── ide-window.ts   # Code block visual component
+│   │   ├── changelog-entry.ts # Changelog row component
+│   │   └── sections/       # Demo section components
+│   │       ├── core-concept.ts
+│   │       ├── stream-to-table.ts
+│   │       ├── table-to-stream.ts
+│   │       ├── changelog-types.ts
+│   │       ├── live-aggregation.ts
+│   │       └── code-examples.ts
+│   └── styles/
+│       └── theme.css       # CSS custom properties
 ├── tests/                  # Playwright tests
-│   ├── theme.spec.js       # Dark theme functionality tests
+│   ├── theme.spec.cjs      # Dark theme functionality tests
+│   ├── responsive.spec.cjs # Responsive layout tests
 │   └── README.md           # Testing documentation
 ├── .github/workflows/      # GitHub Actions
 │   ├── deploy.yml          # Deployment workflow
 │   └── playwright-tests.yml # Testing workflow
-├── package.json            # Node dependencies
-└── playwright.config.js    # Playwright configuration
+├── package.json            # Dependencies and scripts
+├── tsconfig.json           # TypeScript configuration
+└── playwright.config.cjs   # Playwright configuration
 ```
 
 ## Browser Support
