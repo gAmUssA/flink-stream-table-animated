@@ -12,7 +12,13 @@ const streamEvents: StreamEvent[] = [
   { user: 'Alice', product: 'Laptop', amount: 1000, time: '10:01:15' },
   { user: 'Bob', product: 'Mouse', amount: 50, time: '10:01:18' },
   { user: 'Alice', product: 'Keyboard', amount: 100, time: '10:01:22' },
-  { user: 'Charlie', product: 'Monitor', amount: 300, time: '10:01:25' }
+  { user: 'Charlie', product: 'Monitor', amount: 300, time: '10:01:25' },
+  { user: 'Diana', product: 'Webcam', amount: 80, time: '10:01:30' },
+  { user: 'Bob', product: 'Headset', amount: 150, time: '10:01:35' },
+  { user: 'Eve', product: 'SSD', amount: 200, time: '10:01:40' },
+  { user: 'Alice', product: 'USB Hub', amount: 45, time: '10:01:45' },
+  { user: 'Charlie', product: 'Mousepad', amount: 25, time: '10:01:50' },
+  { user: 'Diana', product: 'Cable', amount: 15, time: '10:01:55' }
 ];
 
 @customElement('section-stream-to-table')
@@ -303,6 +309,14 @@ export class SectionStreamToTable extends LitElement {
         this.messages = [...this.messages, { offset: actualIndex, event }];
         this.currentEventIndex = actualIndex + 1;
         
+        // Auto-scroll Kafka messages container
+        requestAnimationFrame(() => {
+          const kafkaContainer = document.querySelector('.kafka-messages');
+          if (kafkaContainer) {
+            kafkaContainer.scrollTop = kafkaContainer.scrollHeight;
+          }
+        });
+        
         const rowTimeout = window.setTimeout(() => {
           if (this.isPaused) return;
           this.tableRows = [...this.tableRows, event];
@@ -350,26 +364,6 @@ export class SectionStreamToTable extends LitElement {
       </div>
 
       <div class="visualization">
-        <ide-window title="create_table.sql">
-          <div class="ide-editor">
-            <div class="ide-line-numbers">
-              ${[1,2,3,4,5,6,7,8].map(n => html`<div class="ide-line-number">${n}</div>`)}
-            </div>
-            <div class="ide-code-content">
-              <div class="ide-code-line"><span class="keyword">CREATE TABLE</span> orders (</div>
-              <div class="ide-code-line">    user_id    <span class="function">STRING</span>,</div>
-              <div class="ide-code-line">    product    <span class="function">STRING</span>,</div>
-              <div class="ide-code-line">    amount     <span class="function">DECIMAL</span>(10, 2),</div>
-              <div class="ide-code-line">    order_time <span class="function">TIMESTAMP</span>(3)</div>
-              <div class="ide-code-line">) <span class="keyword">WITH</span> (</div>
-              <div class="ide-code-line">    <span class="string">'connector'</span> = <span class="string">'kafka'</span></div>
-              <div class="ide-code-line">);</div>
-            </div>
-          </div>
-        </ide-window>
-
-        <div class="conversion-arrow">↓</div>
-
         <!-- Kafka Console with IDE Toolbar -->
         <div class="ide-window">
           <div class="ide-titlebar">
@@ -433,6 +427,26 @@ export class SectionStreamToTable extends LitElement {
             </div>
           </div>
         </div>
+
+        <div class="conversion-arrow">↓</div>
+
+        <ide-window title="create_table.sql">
+          <div class="ide-editor">
+            <div class="ide-line-numbers">
+              ${[1,2,3,4,5,6,7,8].map(n => html`<div class="ide-line-number">${n}</div>`)}
+            </div>
+            <div class="ide-code-content">
+              <div class="ide-code-line"><span class="keyword">CREATE TABLE</span> orders (</div>
+              <div class="ide-code-line">    user_id    <span class="function">STRING</span>,</div>
+              <div class="ide-code-line">    product    <span class="function">STRING</span>,</div>
+              <div class="ide-code-line">    amount     <span class="function">DECIMAL</span>(10, 2),</div>
+              <div class="ide-code-line">    order_time <span class="function">TIMESTAMP</span>(3)</div>
+              <div class="ide-code-line">) <span class="keyword">WITH</span> (</div>
+              <div class="ide-code-line">    <span class="string">'connector'</span> = <span class="string">'kafka'</span></div>
+              <div class="ide-code-line">);</div>
+            </div>
+          </div>
+        </ide-window>
 
         <div class="conversion-arrow">↓</div>
 

@@ -13,7 +13,11 @@ const demoEvents = [
   { user: 'Alice', amount: 200 },
   { user: 'Charlie', amount: 150 },
   { user: 'Bob', amount: 100 },
-  { user: 'Alice', amount: 50 }
+  { user: 'Alice', amount: 50 },
+  { user: 'Diana', amount: 80 },
+  { user: 'Charlie', amount: 200 },
+  { user: 'Bob', amount: 75 },
+  { user: 'Diana', amount: 120 }
 ];
 
 @customElement('section-live-aggregation')
@@ -208,6 +212,14 @@ export class SectionLiveAggregation extends LitElement {
         
         this.currentEventIndex = actualIndex + 1;
         this.events = [...this.events, evt];
+        
+        // Auto-scroll Input Stream container
+        requestAnimationFrame(() => {
+          const inputStream = document.getElementById('agg-input');
+          if (inputStream) {
+            inputStream.scrollTop = inputStream.scrollHeight;
+          }
+        });
         
         const existing = this.aggData.get(evt.user);
         if (existing) {

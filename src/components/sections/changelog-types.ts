@@ -215,6 +215,9 @@ export class SectionChangelogTypes extends LitElement {
                     <div class="output-line insert-color">+I[Alice, 150]</div>
                     <div class="output-line insert-color">+I[Bob, 200]</div>
                     <div class="output-line insert-color">+I[Alice, 300]</div>
+                    <div class="output-line insert-color">+I[Charlie, 250]</div>
+                    <div class="output-line insert-color">+I[Diana, 180]</div>
+                    <div class="output-line insert-color">+I[Bob, 400]</div>
                   </div>
                 </div>
                 <div class="stream-type-footer footer-insert">
@@ -247,6 +250,11 @@ export class SectionChangelogTypes extends LitElement {
                     <div class="output-line insert-color">+I[Alice, 100]</div>
                     <div class="output-line update-before-color">-U[Alice, 100]</div>
                     <div class="output-line update-after-color">+U[Alice, 300]</div>
+                    <div class="output-line insert-color">+I[Bob, 50]</div>
+                    <div class="output-line update-before-color">-U[Alice, 300]</div>
+                    <div class="output-line update-after-color">+U[Alice, 450]</div>
+                    <div class="output-line update-before-color">-U[Bob, 50]</div>
+                    <div class="output-line update-after-color">+U[Bob, 150]</div>
                   </div>
                 </div>
                 <div class="stream-type-footer footer-retract">
@@ -279,7 +287,10 @@ export class SectionChangelogTypes extends LitElement {
                   <div class="output-panel">
                     <div class="output-line insert-color">+I[Alice, 100]</div>
                     <div class="output-line update-after-color">+U[Alice, 300]</div>
-                    <div class="output-line delete-color">-D[Bob, 50]</div>
+                    <div class="output-line insert-color">+I[Bob, 50]</div>
+                    <div class="output-line update-after-color">+U[Alice, 450]</div>
+                    <div class="output-line update-after-color">+U[Bob, 150]</div>
+                    <div class="output-line delete-color">-D[Bob, 150]</div>
                   </div>
                 </div>
                 <div class="stream-type-footer footer-upsert">

@@ -596,9 +596,9 @@ nav-bar {
     background: var(--layer-mid);
     border: 1px solid var(--premium-border);
     border-radius: 8px;
-    padding: 20px;
+    padding: 16px;
     max-width: 100%;
-    margin: 0 0 30px 0;
+    margin: 0 0 20px 0;
 }
 
 /* IDE Window - Premium styling */
@@ -608,7 +608,7 @@ nav-bar {
     overflow: hidden;
     box-shadow: var(--shadow-ide);
     border: 1px solid var(--premium-border);
-    margin: 15px 0;
+    margin: 8px 0;
     font-size: 1rem;
     max-width: 100%;
 }
@@ -693,9 +693,9 @@ tr:nth-child(even) { background: var(--bg-tertiary); }
 /* Conversion Arrow */
 .conversion-arrow {
     text-align: center;
-    font-size: 3em;
+    font-size: 2em;
     color: var(--accent-primary);
-    margin: 20px 0;
+    margin: 8px 0;
     animation: bounce 2s infinite;
 }
 @keyframes bounce { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-10px); } }

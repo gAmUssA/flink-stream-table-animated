@@ -5,18 +5,24 @@ interface TableState {
   user: string;
   total: number;
   count: number;
-  op: 'INSERT' | 'UPDATE';
+  op: 'INSERT' | 'UPDATE' | 'DELETE';
 }
 
 const tableStates: TableState[] = [
   { user: 'Alice', total: 100, count: 1, op: 'INSERT' },
   { user: 'Bob', total: 50, count: 1, op: 'INSERT' },
   { user: 'Alice', total: 300, count: 2, op: 'UPDATE' },
-  { user: 'Charlie', total: 200, count: 1, op: 'INSERT' }
+  { user: 'Charlie', total: 200, count: 1, op: 'INSERT' },
+  { user: 'Bob', total: 150, count: 2, op: 'UPDATE' },
+  { user: 'Diana', total: 80, count: 1, op: 'INSERT' },
+  { user: 'Alice', total: 450, count: 3, op: 'UPDATE' },
+  { user: 'Charlie', total: 350, count: 2, op: 'UPDATE' },
+  { user: 'Bob', total: 0, count: 0, op: 'DELETE' },
+  { user: 'Diana', total: 180, count: 2, op: 'UPDATE' }
 ];
 
 interface ChangelogItem {
-  type: 'insert' | 'update-before' | 'update-after';
+  type: 'insert' | 'update-before' | 'update-after' | 'delete';
   data: string;
 }
 
@@ -123,6 +129,7 @@ export class SectionTableToStream extends LitElement {
     .insert { background: var(--color-insert); color: var(--color-insert-text); border-color: var(--color-insert-border); }
     .update-before { background: var(--color-update); color: var(--color-update-text); border-color: var(--color-update-border); }
     .update-after { background: var(--color-update-after); color: var(--color-update-after-text); border-color: var(--color-update-after-border); }
+    .delete { background: var(--color-delete); color: var(--color-delete-text); border-color: var(--color-delete-border); }
 
     .badge {
       display: inline-block;
@@ -135,6 +142,9 @@ export class SectionTableToStream extends LitElement {
     }
     .badge-insert { background: var(--color-insert-badge); }
     .badge-update { background: var(--color-update-badge); }
+    .badge-delete { background: var(--color-delete-badge); }
+    
+    .row-delete { animation: rowDelete 0.5s; background: var(--color-delete) !important; }
 
     .legend { display: flex; justify-content: center; gap: 20px; margin-top: 20px; flex-wrap: wrap; }
     .legend-item { display: flex; align-items: center; gap: 8px; color: var(--text-primary); }
@@ -178,6 +188,15 @@ export class SectionTableToStream extends LitElement {
     this.continueDemo();
   }
 
+  private scrollChangelog(): void {
+    requestAnimationFrame(() => {
+      const changelogEl = document.getElementById('changelog-stream');
+      if (changelogEl) {
+        changelogEl.scrollTop = changelogEl.scrollHeight;
+      }
+    });
+  }
+
   private continueDemo(): void {
     const remainingStates = tableStates.slice(this.currentStateIndex);
     
@@ -192,31 +211,48 @@ export class SectionTableToStream extends LitElement {
           this.tableData = new Map(this.tableData).set(state.user, { total: state.total, count: state.count });
           this.changelog = [...this.changelog, { type: 'insert', data: `[${state.user}, ${state.total}, ${state.count}]` }];
           this.rowAnimations = new Map(this.rowAnimations).set(state.user, 'row-insert');
+          this.scrollChangelog();
           setTimeout(() => { 
             if (!this.isPaused) this.rowAnimations = new Map(this.rowAnimations).set(state.user, ''); 
           }, 500);
+        } else if (state.op === 'DELETE') {
+          const old = this.tableData.get(state.user);
+          if (old) {
+            this.changelog = [...this.changelog, { type: 'delete', data: `[${state.user}, ${old.total}, ${old.count}]` }];
+            this.rowAnimations = new Map(this.rowAnimations).set(state.user, 'row-delete');
+            this.scrollChangelog();
+            setTimeout(() => {
+              if (this.isPaused) return;
+              const newData = new Map(this.tableData);
+              newData.delete(state.user);
+              this.tableData = newData;
+              this.rowAnimations = new Map(this.rowAnimations).set(state.user, '');
+            }, 500);
+          }
         } else {
           const old = this.tableData.get(state.user);
           if (old) {
             this.changelog = [...this.changelog, { type: 'update-before', data: `[${state.user}, ${old.total}, ${old.count}]` }];
             this.rowAnimations = new Map(this.rowAnimations).set(state.user, 'row-update');
+            this.scrollChangelog();
             setTimeout(() => {
               if (this.isPaused) return;
               this.tableData = new Map(this.tableData).set(state.user, { total: state.total, count: state.count });
               this.changelog = [...this.changelog, { type: 'update-after', data: `[${state.user}, ${state.total}, ${state.count}]` }];
+              this.scrollChangelog();
               setTimeout(() => { 
                 if (!this.isPaused) this.rowAnimations = new Map(this.rowAnimations).set(state.user, ''); 
               }, 500);
             }, 300);
           }
         }
-      }, index * 2000);
+      }, index * 1500);
       this.timeouts.push(timeout);
     });
 
     const finalTimeout = window.setTimeout(() => { 
       if (!this.isPaused) this.isRunning = false; 
-    }, remainingStates.length * 2000 + 500);
+    }, remainingStates.length * 1500 + 500);
     this.timeouts.push(finalTimeout);
   }
 
@@ -334,13 +370,13 @@ export class SectionTableToStream extends LitElement {
           </div>
           <div>
             <ide-window title="Changelog Stream">
-              <div class="changelog">
+              <div id="changelog-stream" class="changelog">
                 ${this.changelog.length === 0
                   ? html`<div style="text-align: center; color: var(--ui-muted-text);">Waiting...</div>`
                   : this.changelog.map(entry => html`
                       <div class="changelog-entry ${entry.type}">
-                        <span class="badge ${entry.type === 'insert' ? 'badge-insert' : 'badge-update'}">
-                          ${entry.type === 'insert' ? '+I' : entry.type === 'update-before' ? '-U' : '+U'}
+                        <span class="badge ${entry.type === 'insert' ? 'badge-insert' : entry.type === 'delete' ? 'badge-delete' : 'badge-update'}">
+                          ${entry.type === 'insert' ? '+I' : entry.type === 'update-before' ? '-U' : entry.type === 'delete' ? '-D' : '+U'}
                         </span>${entry.data}
                       </div>
                     `)
