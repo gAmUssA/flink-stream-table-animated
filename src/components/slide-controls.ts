@@ -5,10 +5,6 @@ import { customElement, property, state } from 'lit/decorators.js';
 export class SlideControls extends LitElement {
   static override styles = css`
     :host {
-      display: none;
-    }
-    
-    :host([visible]) {
       display: flex;
       position: fixed;
       bottom: 30px;
@@ -35,7 +31,7 @@ export class SlideControls extends LitElement {
       transition: opacity 0.4s ease, transform 0.4s ease;
     }
     
-    :host([visible][hidden-controls]) {
+    :host([hidden-controls]) {
       opacity: 0;
       pointer-events: none;
       transform: translateX(-50%) translateY(20px);
@@ -111,14 +107,14 @@ export class SlideControls extends LitElement {
     }
     
     .progress {
-      font-size: 1.1rem;
+      font-size: 0.9rem;
       color: rgba(255, 255, 255, 0.95);
-      font-weight: 700;
-      min-width: 70px;
+      font-weight: 600;
+      min-width: 140px;
       text-align: center;
-      font-family: 'JetBrains Mono', monospace;
+      font-family: 'Inter', -apple-system, sans-serif;
       text-shadow: 0 0 10px rgba(129, 140, 248, 0.5);
-      letter-spacing: 2px;
+      letter-spacing: 0.5px;
     }
     
     .arrow {
@@ -135,13 +131,13 @@ export class SlideControls extends LitElement {
       button::before {
         animation: none;
       }
-      :host([visible]) {
+      :host {
         transition: opacity 0.2s ease;
       }
     }
     
     @media (max-width: 768px) {
-      :host([visible]) {
+      :host {
         bottom: 20px;
         padding: 10px 20px;
         gap: 14px;
@@ -154,8 +150,8 @@ export class SlideControls extends LitElement {
       }
       
       .progress {
-        font-size: 0.95rem;
-        min-width: 55px;
+        font-size: 0.8rem;
+        min-width: 100px;
       }
     }
   `;
@@ -182,6 +178,8 @@ export class SlideControls extends LitElement {
     super.connectedCallback();
     this.addEventListener('mouseenter', this._handleMouseEnter);
     this.addEventListener('mouseleave', this._handleMouseLeave);
+    // Start auto-hide timer on load
+    this._startHideTimeout();
   }
 
   override disconnectedCallback(): void {
@@ -233,9 +231,22 @@ export class SlideControls extends LitElement {
     this._startHideTimeout();
   }
 
+  private _getSectionName(index: number): string {
+    const sections = [
+      'Core Concepts',
+      'Stream → Table',
+      'Table → Stream',
+      'Changelog Types',
+      'Live SQL',
+      'Code Examples'
+    ];
+    return sections[index] || `Section ${index + 1}`;
+  }
+
   override render() {
     const isFirst = this.current <= 0;
     const isLast = this.current >= this.total - 1;
+    const sectionName = this._getSectionName(this.current);
 
     return html`
       <button
@@ -248,7 +259,7 @@ export class SlideControls extends LitElement {
       </button>
       
       <span class="progress" aria-live="polite">
-        ${this.current + 1} / ${this.total}
+        ${sectionName}
       </span>
       
       <button

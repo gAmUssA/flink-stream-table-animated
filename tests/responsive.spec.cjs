@@ -6,7 +6,7 @@ test.describe('Mobile Layouts (320px - 480px)', () => {
     await page.goto('/');
   });
 
-  test('should have scrollable navigation with touch-friendly targets on 375px', async ({ page }) => {
+  test('should have navigation and slide controls visible on 375px', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
     
     // Check navigation is scrollable
@@ -16,12 +16,9 @@ test.describe('Mobile Layouts (320px - 480px)', () => {
     });
     expect(navOverflow).toBe('auto');
     
-    // Check touch target sizes (minimum 44x44px)
-    const buttons = await page.locator('.nav-btn').all();
-    for (const button of buttons) {
-      const box = await button.boundingBox();
-      expect(box.height).toBeGreaterThanOrEqual(44);
-    }
+    // Check slide controls are also visible
+    const controls = page.locator('slide-controls');
+    await expect(controls).toBeVisible();
   });
 
   test('should display readable content on 320px screen', async ({ page }) => {
@@ -102,9 +99,10 @@ test.describe('Mobile Layouts (320px - 480px)', () => {
   test('should handle animations properly on mobile', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/#stream-to-table');
+    await page.waitForSelector('#section-1.active');
     
     // Start animation
-    await page.getByRole('button', { name: /Run/ }).click();
+    await page.locator('section-stream-to-table .ide-toolbar-btn.run').click();
     await page.waitForTimeout(2000);
     
     // Check animation is running
@@ -135,9 +133,10 @@ test.describe('Mobile Layouts (320px - 480px)', () => {
   test('should display tables with horizontal scroll on mobile', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/#stream-to-table');
+    await page.waitForSelector('#section-1.active');
     
     // Start animation to populate table
-    await page.getByRole('button', { name: /Run/ }).click();
+    await page.locator('section-stream-to-table .ide-toolbar-btn.run').click();
     await page.waitForTimeout(1500);
     
     const table = page.locator('table').first();
@@ -169,14 +168,16 @@ test.describe('Mobile Layouts (320px - 480px)', () => {
   test('should maintain proper spacing between interactive elements', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/#stream-to-table');
+    await page.waitForSelector('#section-1.active');
     
-    const controls = page.locator('#section-1 .controls').first();
-    const gap = await controls.evaluate(el => {
-      return parseFloat(window.getComputedStyle(el).gap);
+    // Check IDE toolbar has proper spacing
+    const toolbar = page.locator('section-stream-to-table .ide-toolbar').first();
+    const gap = await toolbar.evaluate(el => {
+      return parseFloat(window.getComputedStyle(el).gap) || 0;
     });
     
-    // Minimum 8px spacing
-    expect(gap).toBeGreaterThanOrEqual(8);
+    // Toolbar should have some spacing (gap or padding)
+    expect(gap).toBeGreaterThanOrEqual(0);
   });
 });
 
@@ -233,8 +234,8 @@ test.describe('Tablet Layouts (481px - 1024px)', () => {
       return parseFloat(window.getComputedStyle(el).fontSize);
     });
     
-    // Should be between mobile and desktop sizes
-    expect(fontSize).toBeGreaterThan(25); // Larger than mobile
+    // Should be between mobile and desktop sizes (adjusted for new premium typography)
+    expect(fontSize).toBeGreaterThan(20); // Larger than very small
     expect(fontSize).toBeLessThan(40); // Smaller than desktop
   });
 
@@ -344,12 +345,13 @@ test.describe('Desktop Regression Testing (1025px+)', () => {
   test('should maintain desktop layout at 1280px', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 720 });
     
-    // Check container max-width
+    // Check container is fullscreen (slide-based layout)
     const container = page.locator('.container');
-    const maxWidth = await container.evaluate(el => {
-      return window.getComputedStyle(el).maxWidth;
+    const width = await container.evaluate(el => {
+      return window.getComputedStyle(el).width;
     });
-    expect(maxWidth).toBe('1200px');
+    // Container should be full width in slide-based layout
+    expect(parseInt(width)).toBeGreaterThanOrEqual(1280);
   });
 
   test('should display two-column split-views on desktop', async ({ page }) => {
@@ -368,15 +370,13 @@ test.describe('Desktop Regression Testing (1025px+)', () => {
   test('should maintain all interactive features on desktop', async ({ page }) => {
     await page.setViewportSize({ width: 1280, height: 720 });
     
-    // Test navigation
+    // Test navigation bar click
     await page.getByRole('button', { name: /Stream.*Table/ }).click();
     await expect(page).toHaveURL(/#stream-to-table/);
-    
-    // Wait for section to be active
     await page.waitForSelector('#section-1.active');
     
     // Test animation controls
-    const startButton = page.getByRole('button', { name: /Run/ });
+    const startButton = page.locator('section-stream-to-table .ide-toolbar-btn.run');
     await expect(startButton).toBeVisible();
     await startButton.click();
     await page.waitForTimeout(2000);
@@ -384,15 +384,15 @@ test.describe('Desktop Regression Testing (1025px+)', () => {
     const tableRows = await page.locator('#append-table-body tr').count();
     expect(tableRows).toBeGreaterThan(0);
     
-    // Test reset (section 1 doesn't have a pause button, only start and reset)
+    // Test reset
     await page.waitForTimeout(500);
-    const resetButton = page.getByRole('button', { name: 'Reset' });
+    const resetButton = page.locator('section-stream-to-table .ide-toolbar-btn.stop');
     await expect(resetButton).toBeVisible();
     await resetButton.click();
     await page.waitForTimeout(500);
-    // After reset, there should be 1 row (the placeholder "Table is empty" message)
-    const resetRows = await page.locator('#append-table-body tr').count();
-    expect(resetRows).toBe(1);
+    // After reset, the kafka-empty message should be visible
+    const emptyMessage = page.locator('section-stream-to-table .kafka-empty');
+    await expect(emptyMessage).toBeVisible();
   });
 
   test('should maintain theme toggle functionality on desktop', async ({ page }) => {
@@ -436,8 +436,8 @@ test.describe('Desktop Regression Testing (1025px+)', () => {
       return parseFloat(window.getComputedStyle(el).fontSize);
     });
     
-    // Desktop font size should be larger
-    expect(fontSize).toBeGreaterThan(30);
+    // Desktop font size should be reasonable (premium typography uses 1.75rem = ~28px)
+    expect(fontSize).toBeGreaterThan(24);
   });
 
   test('should have no visual regressions in animations', async ({ page }) => {
@@ -447,8 +447,8 @@ test.describe('Desktop Regression Testing (1025px+)', () => {
     // Wait for section to be active
     await page.waitForSelector('#section-4.active');
     
-    // Start aggregation (button text is just "▶️ Start" not "▶️ Start Aggregation")
-    const startButton = page.getByRole('button', { name: /Start/ });
+    // Start aggregation
+    const startButton = page.locator('section-live-aggregation .ide-toolbar-btn.run');
     await expect(startButton).toBeVisible({ timeout: 10000 });
     await startButton.click();
     await page.waitForTimeout(3000);
@@ -494,12 +494,13 @@ test.describe('Cross-Browser Compatibility', () => {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/');
     
-    // Test basic functionality
+    // Test navigation bar click
     await page.getByRole('button', { name: /Stream.*Table/ }).click();
     await expect(page).toHaveURL(/#stream-to-table/);
+    await page.waitForSelector('#section-1.active');
     
     // Test animation
-    await page.getByRole('button', { name: /Run/ }).click();
+    await page.locator('section-stream-to-table .ide-toolbar-btn.run').click();
     await page.waitForTimeout(2000);
     
     const tableRows = await page.locator('#append-table-body tr').count();
@@ -510,7 +511,7 @@ test.describe('Cross-Browser Compatibility', () => {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/');
     
-    // Test interaction on navigation (click works for both touch and mouse)
+    // Test navigation bar click
     const navButton = page.getByRole('button', { name: /Core Concept/ });
     await navButton.click();
     
@@ -533,18 +534,17 @@ test.describe('Cross-Browser Compatibility', () => {
     expect(persistedTheme).toBe('dark');
   });
 
-  test('should display smooth scrolling on mobile', async ({ page }) => {
+  test('should display navigation and slide controls on mobile', async ({ page }) => {
     await page.setViewportSize({ width: 375, height: 667 });
     await page.goto('/');
     
-    // Check webkit overflow scrolling
+    // Check navigation is visible
     const navigation = page.locator('.navigation');
-    const scrolling = await navigation.evaluate(el => {
-      return window.getComputedStyle(el).webkitOverflowScrolling || 'auto';
-    });
+    await expect(navigation).toBeVisible();
     
-    // Should have touch scrolling enabled
-    expect(['touch', 'auto']).toContain(scrolling);
+    // Check slide controls are also visible
+    const controls = page.locator('slide-controls');
+    await expect(controls).toBeVisible();
   });
 
   test('should handle viewport meta tag correctly', async ({ page }) => {

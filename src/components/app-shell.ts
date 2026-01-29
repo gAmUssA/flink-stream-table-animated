@@ -3,7 +3,6 @@ import { customElement, state } from 'lit/decorators.js';
 
 import './theme-toggle.js';
 import './nav-bar.js';
-import './presentation-toggle.js';
 import './slide-controls.js';
 import './ide-window.js';
 import './changelog-entry.js';
@@ -25,9 +24,6 @@ export class AppShell extends LitElement {
   @state()
   private activeSection = 0;
 
-  @state()
-  private presentationMode = false;
-
   private _boundKeyHandler: ((e: KeyboardEvent) => void) | null = null;
 
   override connectedCallback(): void {
@@ -35,9 +31,17 @@ export class AppShell extends LitElement {
     this._boundKeyHandler = this._handleKeydown.bind(this);
     document.addEventListener('keydown', this._boundKeyHandler);
     
-    // Check if presentation mode is already active (from localStorage)
-    if (document.documentElement.hasAttribute('data-presentation')) {
-      this.presentationMode = true;
+    // Handle initial hash routing
+    this._handleInitialHash();
+    window.addEventListener('hashchange', () => this._handleInitialHash());
+  }
+
+  private _handleInitialHash(): void {
+    const hash = window.location.hash.slice(1);
+    const hashes = ['concept', 'stream-to-table', 'table-to-stream', 'stream-types', 'live-aggregation', 'code-examples'];
+    const index = hashes.indexOf(hash);
+    if (index >= 0) {
+      this.activeSection = index;
     }
   }
 
@@ -90,9 +94,7 @@ export class AppShell extends LitElement {
       return;
     }
 
-    // Presentation-mode-only keys
-    if (!this.presentationMode) return;
-
+    // Additional navigation keys (Space, PageDown, PageUp)
     switch (e.key) {
       case ' ':
       case 'PageDown':
@@ -103,17 +105,6 @@ export class AppShell extends LitElement {
         e.preventDefault();
         this._navigatePrev();
         break;
-      case 'Escape':
-        e.preventDefault();
-        this._exitPresentationMode();
-        break;
-      case 'f':
-      case 'F':
-        if (!e.ctrlKey && !e.metaKey) {
-          e.preventDefault();
-          this._toggleFullscreen();
-        }
-        break;
     }
   }
 
@@ -121,9 +112,7 @@ export class AppShell extends LitElement {
     if (index >= 0 && index < TOTAL_SECTIONS) {
       this.activeSection = index;
       this._updateUrlHash(index);
-      if (this.presentationMode) {
-        this._showUIElements();
-      }
+      this._showUIElements();
     }
   }
 
@@ -138,9 +127,7 @@ export class AppShell extends LitElement {
     if (this.activeSection < TOTAL_SECTIONS - 1) {
       this.activeSection++;
       this._updateUrlHash(this.activeSection);
-      if (this.presentationMode) {
-        this._showUIElements();
-      }
+      this._showUIElements();
     }
   }
 
@@ -148,97 +135,20 @@ export class AppShell extends LitElement {
     if (this.activeSection > 0) {
       this.activeSection--;
       this._updateUrlHash(this.activeSection);
-      if (this.presentationMode) {
-        this._showUIElements();
-      }
+      this._showUIElements();
     }
   }
 
   private _showUIElements(): void {
-    // Show slide controls only (header stays hidden for cleaner presentation)
+    // Show slide controls
     const controls = this.querySelector('slide-controls') as any;
     if (controls?.showControls) {
       controls.showControls();
     }
   }
 
-  private _exitPresentationMode(): void {
-    document.documentElement.removeAttribute('data-presentation');
-    this.presentationMode = false;
-    localStorage.setItem('flink-tutorial-presentation-mode', 'false');
-    
-    // Exit fullscreen if active
-    if (document.fullscreenElement) {
-      document.exitFullscreen().catch(() => {});
-    }
-  }
-
-  private _toggleFullscreen(): void {
-    if (!document.fullscreenElement) {
-      document.documentElement.requestFullscreen().catch(() => {});
-    } else {
-      document.exitFullscreen().catch(() => {});
-    }
-  }
-
   private handleSectionChange(e: CustomEvent<{ index: number }>): void {
     this.activeSection = e.detail.index;
-  }
-
-  private handlePresentationChange(e: CustomEvent<{ active: boolean }>): void {
-    this.presentationMode = e.detail.active;
-    
-    // Auto-switch to dark mode when entering presentation mode
-    if (e.detail.active) {
-      // Store current theme to restore later
-      this._previousTheme = document.documentElement.getAttribute('data-theme') || 'light';
-      document.documentElement.setAttribute('data-theme', 'dark');
-      
-      // Enter fullscreen automatically
-      document.documentElement.requestFullscreen().catch(() => {});
-      
-      // Start auto-hide timer for controls and header
-      const controls = this.querySelector('slide-controls') as any;
-      if (controls?.showControls) {
-        controls.showControls();
-      }
-      this._startHeaderHideTimer();
-    } else {
-      // Restore previous theme when exiting
-      if (this._previousTheme) {
-        document.documentElement.setAttribute('data-theme', this._previousTheme);
-      }
-      // Show header when exiting
-      document.documentElement.removeAttribute('data-header-hidden');
-      this._clearHeaderHideTimer();
-      
-      // Exit fullscreen when exiting presentation mode
-      if (document.fullscreenElement) {
-        document.exitFullscreen().catch(() => {});
-      }
-    }
-  }
-  
-  private _previousTheme: string | null = null;
-  private _headerHideTimeout: number | null = null;
-
-  private _startHeaderHideTimer(): void {
-    this._clearHeaderHideTimer();
-    this._headerHideTimeout = window.setTimeout(() => {
-      document.documentElement.setAttribute('data-header-hidden', 'true');
-    }, 3000);
-  }
-
-  private _clearHeaderHideTimer(): void {
-    if (this._headerHideTimeout !== null) {
-      window.clearTimeout(this._headerHideTimeout);
-      this._headerHideTimeout = null;
-    }
-  }
-
-  private _showHeader(): void {
-    document.documentElement.removeAttribute('data-header-hidden');
-    this._startHeaderHideTimer();
   }
 
   private handleSlideNavigate(e: CustomEvent<{ direction: 'prev' | 'next' }>): void {
@@ -252,18 +162,16 @@ export class AppShell extends LitElement {
   override render() {
     return html`
       <div class="container">
-        <div class="header">
-          <h1>Flink SQL &amp; Table API</h1>
-          <p>Interactive Tutorial: Dynamic Tables and Changelog Streams</p>
-          <presentation-toggle
-            @presentation-change=${this.handlePresentationChange}
-          ></presentation-toggle>
+        <header class="header">
+          <div class="header-content">
+            <h1>Flink SQL &amp; Table API</h1>
+            <p>Interactive Tutorial: Dynamic Tables and Changelog Streams</p>
+          </div>
           <theme-toggle></theme-toggle>
-        </div>
+        </header>
 
         <nav-bar
           @section-change=${this.handleSectionChange}
-          style=${this.presentationMode ? 'display: none' : ''}
         ></nav-bar>
 
         <div class="content">
@@ -290,7 +198,7 @@ export class AppShell extends LitElement {
         <slide-controls
           .current=${this.activeSection}
           .total=${TOTAL_SECTIONS}
-          ?visible=${this.presentationMode}
+          visible
           @slide-navigate=${this.handleSlideNavigate}
         ></slide-controls>
       </div>

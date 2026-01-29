@@ -139,22 +139,23 @@ test.describe('Dark Theme Functionality', () => {
 
   test('should work correctly with animations in both themes', async ({ page }) => {
     await page.goto('/#stream-to-table');
+    await page.waitForSelector('#section-1.active');
     
     // Test in light mode
-    await page.getByRole('button', { name: /Run/ }).click();
+    await page.locator('section-stream-to-table .ide-toolbar-btn.run').click();
     await page.waitForTimeout(3000);
     
     let tableRows = await page.locator('#append-table-body tr').count();
     expect(tableRows).toBeGreaterThan(0);
     
     // Reset
-    await page.getByRole('button', { name: 'Reset' }).first().click();
+    await page.locator('section-stream-to-table .ide-toolbar-btn.stop').click();
     
     // Toggle to dark mode
     await page.getByRole('button', { name: 'Toggle theme' }).click();
     
     // Test animation in dark mode
-    await page.getByRole('button', { name: /Run/ }).click();
+    await page.locator('section-stream-to-table .ide-toolbar-btn.run').click();
     await page.waitForTimeout(3000);
     
     tableRows = await page.locator('#append-table-body tr').count();

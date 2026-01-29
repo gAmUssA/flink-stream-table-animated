@@ -342,7 +342,7 @@ export class SectionCodeExamples extends LitElement {
                 <span class="ide-statusbar-item">UTF-8</span>
               </div>
               <div class="ide-statusbar-right">
-                <span class="ide-statusbar-item">Flink 1.20</span>
+                <span class="ide-statusbar-item">Flink 2.2.0</span>
                 <span class="ide-statusbar-item">Ln 3, Col 1</span>
               </div>
             </div>
@@ -360,16 +360,12 @@ export class SectionCodeExamples extends LitElement {
             <span class="terminal-header-title">Flink SQL Client</span>
           </div>
           <div class="terminal-body" id="terminal-output">
-            <div class="terminal-line">
-              <span class="terminal-prompt">Flink SQL&gt;</span>
-              <span class="terminal-command"> SELECT user_id, SUM(amount) FROM orders GROUP BY user_id;</span>
-            </div>
-            <div class="terminal-line terminal-info">[INFO] Submitting SQL query...</div>
-            <div class="terminal-line terminal-success">[INFO] Query submitted successfully</div>
-            <div class="terminal-line">
-              <span class="terminal-prompt">Flink SQL&gt;</span>
-              <span class="terminal-cursor"></span>
-            </div>
+            <div class="terminal-line terminal-info">Welcome to Flink SQL Client 2.2.0</div>
+            <div class="terminal-line terminal-output"></div>
+            <div class="terminal-line terminal-output">Command Line Interface for Apache Flink SQL</div>
+            <div class="terminal-line terminal-output">Type 'HELP;' for available commands or click Run Demo above</div>
+            <div class="terminal-line terminal-output"></div>
+            <div class="terminal-line"><span class="terminal-prompt">Flink SQL&gt;</span><span class="terminal-cursor"></span></div>
           </div>
         </div>
 

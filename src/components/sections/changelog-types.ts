@@ -8,7 +8,7 @@ export class SectionChangelogTypes extends LitElement {
   override createRenderRoot() { return this; }
 
   @state()
-  private expandedPanels: Set<PanelId> = new Set(['insert', 'retract', 'upsert', 'upsert-source']);
+  private expandedPanels: Set<PanelId> = new Set(['insert']);
 
   private togglePanel(panelId: PanelId) {
     const newSet = new Set(this.expandedPanels);
