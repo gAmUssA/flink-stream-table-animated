@@ -39,5 +39,9 @@ const html = `<!DOCTYPE html>
 
 writeFileSync(join(distDir, 'index.html'), html);
 
+// Create CNAME file for custom domain
+writeFileSync(join(distDir, 'CNAME'), 'selectstar.stream');
+
 console.log('✓ Generated dist/index.html');
+console.log('✓ Created dist/CNAME for custom domain');
 console.log(`✓ Copied ${images.length} images to dist/images/`);
